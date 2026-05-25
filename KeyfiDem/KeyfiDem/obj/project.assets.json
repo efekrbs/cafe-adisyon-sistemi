@@ -8,19 +8,19 @@
     "net10.0-windows": []
   },
   "packageFolders": {
-    "C:\\Users\\TalhaKrbs\\.nuget\\packages\\": {}
+    "C:\\Users\\befek\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\KeyfiDem\\KeyfiDem\\KeyfiDem.csproj",
+      "projectUniqueName": "C:\\Users\\befek\\source\\repos\\efekrbs\\cafe-adisyon-sistemi\\KeyfiDem\\KeyfiDem\\KeyfiDem.csproj",
       "projectName": "KeyfiDem",
-      "projectPath": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\KeyfiDem\\KeyfiDem\\KeyfiDem.csproj",
-      "packagesPath": "C:\\Users\\TalhaKrbs\\.nuget\\packages\\",
-      "outputPath": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\KeyfiDem\\KeyfiDem\\obj\\",
+      "projectPath": "C:\\Users\\befek\\source\\repos\\efekrbs\\cafe-adisyon-sistemi\\KeyfiDem\\KeyfiDem\\KeyfiDem.csproj",
+      "packagesPath": "C:\\Users\\befek\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\befek\\source\\repos\\efekrbs\\cafe-adisyon-sistemi\\KeyfiDem\\KeyfiDem\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\TalhaKrbs\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\befek\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
