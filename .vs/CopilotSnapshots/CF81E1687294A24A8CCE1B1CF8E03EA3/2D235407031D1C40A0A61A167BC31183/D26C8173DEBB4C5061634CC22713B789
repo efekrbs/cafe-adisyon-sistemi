@@ -1,0 +1,272 @@
+﻿<Window x:Class="CafeAdisyon.Views.AyarlarWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Ayarlar" Height="600" Width="900"
+        Background="{StaticResource PrimaryBrush}"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="{StaticResource DefaultFont}">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Sekme Seçimi -->
+        <Border Grid.Column="0" Background="{StaticResource SecondaryBrush}"
+               BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
+            <StackPanel Margin="10">
+                <Button Name="MenuButton" Content="MENÜ YÖNETİMİ"
+                       Width="130" Height="40" Margin="0,10"
+                       Style="{StaticResource PrimaryButtonStyle}"
+                       Click="MenuButton_Click"
+                       Background="{StaticResource AccentBrush}"/>
+
+                <Button Name="IstatistikButton" Content="İSTATİSTİKLER"
+                       Width="130" Height="40" Margin="0,10"
+                       Style="{StaticResource PrimaryButtonStyle}"
+                       Click="IstatistikButton_Click"
+                       Background="#999999"/>
+
+                <Button Name="MasalarButton" Content="MASALAR"
+                       Width="130" Height="40" Margin="0,10"
+                       Style="{StaticResource PrimaryButtonStyle}"
+                       Click="MasalarButton_Click"
+                       Background="#999999"/>
+            </StackPanel>
+        </Border>
+
+        <!-- İçerik Alanı -->
+        <Grid Grid.Column="1">
+            <!-- Menü Yönetimi Sekmesi -->
+            <Grid Name="MenuTabi" Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="MENÜ YÖNETİMİ"
+                          FontSize="20" FontWeight="Bold"
+                          Foreground="{StaticResource TextBrush}" Margin="0,0,0,20"/>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="300"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Ürünler Listesi -->
+                    <Grid Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="Mevcut Ürünler:"
+                                  FontSize="14" FontWeight="Bold"
+                                  Foreground="{StaticResource TextBrush}" Margin="0,0,0,10"/>
+
+                        <ListBox Grid.Row="1" Name="UrunlerListesi"
+                                Background="{StaticResource SecondaryBrush}"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="1">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="10" Margin="0,5">
+                                        <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="{Binding UrunAdi}"
+                                                      FontSize="12" FontWeight="Bold"
+                                                      Foreground="{StaticResource TextBrush}"/>
+                                            <TextBlock Text="{Binding Kategori}"
+                                                      FontSize="10" Foreground="#666"/>
+                                            <TextBlock Text="{Binding Fiyat, StringFormat={}&#8378;{0:F2}}"
+                                                      FontSize="11" FontWeight="Bold"
+                                                      Foreground="{StaticResource AccentBrush}" Margin="0,3,0,0"/>
+                                        </StackPanel>
+
+                                        <Button Grid.Column="1" Content="SİL"
+                                               Width="50" Height="30" Margin="10,0,0,0"
+                                               Style="{StaticResource PrimaryButtonStyle}"
+                                               Background="{StaticResource DangerBrush}"
+                                               Click="SilUrun_Click"
+                                               Tag="{Binding UrunId}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+
+                    <!-- Yeni Ürün Formu -->
+                    <Border Grid.Column="1" Background="{StaticResource SecondaryBrush}"
+                           BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                           Padding="15" Margin="20,0,0,0" CornerRadius="6">
+                        <StackPanel>
+                            <TextBlock Text="YENİ ÜRÜN EKLE" FontSize="13" FontWeight="Bold"
+                                      Foreground="{StaticResource TextBrush}" Margin="0,0,0,15"/>
+
+                            <TextBlock Text="Ürün Adı:" FontSize="11" Foreground="{StaticResource TextBrush}"/>
+                            <TextBox Name="UrunAdiTxt" Height="30" Margin="0,5,0,10"
+                                    Padding="8" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"/>
+
+                            <TextBlock Text="Kategori:" FontSize="11" Foreground="{StaticResource TextBrush}"/>
+                            <ComboBox Name="KategoriCombo" Height="30" Margin="0,5,0,10"
+                                     BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" VerticalContentAlignment="Center">
+                                <ComboBoxItem>İçecek</ComboBoxItem>
+                                <ComboBoxItem>Yemek</ComboBoxItem>
+                                <ComboBoxItem>Tatlı</ComboBoxItem>
+                                <ComboBoxItem>Diğer</ComboBoxItem>
+                            </ComboBox>
+
+                            <TextBlock Text="Fiyat (₺):" FontSize="11" Foreground="{StaticResource TextBrush}"/>
+                            <TextBox Name="FiyatTxt" Height="30" Margin="0,5,0,10"
+                                    Padding="8" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"/>
+
+                            <Button Content="ÜRÜN EKLE" Style="{StaticResource PrimaryButtonStyle}"
+                                   Click="EkleUrun_Click" Height="35" Margin="0,10,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Grid>
+
+            <!-- İstatistikler Sekmesi -->
+            <Grid Name="IstatistikTabi" Margin="20" Visibility="Hidden">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Background="{StaticResource AccentBrush}"
+                           CornerRadius="8" Padding="20" Margin="0,0,10,0">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="GÜNLÜK CİRO" FontSize="12" Foreground="White"
+                                      Opacity="0.8" TextAlignment="Center"/>
+                            <TextBlock Name="GunlukCiroText" Text="₺0.00" FontSize="24"
+                                      FontWeight="Bold" Foreground="White" TextAlignment="Center" Margin="0,8,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Background="#FFA500"
+                           CornerRadius="8" Padding="20" Margin="10,0">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="AYLIK CİRO" FontSize="12" Foreground="White"
+                                      Opacity="0.8" TextAlignment="Center"/>
+                            <TextBlock Name="AylikCiroText" Text="₺0.00" FontSize="24"
+                                      FontWeight="Bold" Foreground="White" TextAlignment="Center" Margin="0,8,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2" Background="#2196F3"
+                           CornerRadius="8" Padding="20" Margin="10,0,0,0">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="TOPLAM CİRO" FontSize="12" Foreground="White"
+                                      Opacity="0.8" TextAlignment="Center"/>
+                            <TextBlock Name="ToplamCiroText" Text="₺0.00" FontSize="24"
+                                      FontWeight="Bold" Foreground="White" TextAlignment="Center" Margin="0,8,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Border Grid.Row="1" Background="{StaticResource SecondaryBrush}"
+                       BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                       Margin="0,20,0,0" Padding="15" CornerRadius="6">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="ÜRÜN SATIŞ RAPORU" FontSize="14"
+                                  FontWeight="Bold" Foreground="{StaticResource TextBrush}" Margin="0,0,0,15"/>
+
+                        <ListBox Grid.Row="1" Name="RaporuListesi">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="10" Margin="0,3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="{Binding Item1}" FontSize="12"
+                                                  FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"/>
+
+                                        <TextBlock Grid.Column="1" Text="{Binding Item2, StringFormat='{0} adet'}"
+                                                  FontSize="12" Foreground="{StaticResource AccentBrush}"
+                                                  FontWeight="Bold"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Masalar Sekmesi -->
+            <Grid Name="MasalarTabi" Margin="20" Visibility="Hidden">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="MASA YÖNETİMİ" FontSize="20"
+                          FontWeight="Bold" Foreground="{StaticResource TextBrush}" Margin="0,0,0,20"/>
+
+                <ListBox Grid.Row="1" Name="MasalarListesi" Background="{StaticResource SecondaryBrush}"
+                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="15" Margin="0,5" Background="Transparent">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="{Binding MasaAdi}" FontSize="13" FontWeight="Bold"
+                                              Foreground="{StaticResource TextBrush}"/>
+                                    <TextBlock Text="{Binding Durum}" FontSize="11" Foreground="#666" Margin="0,3,0,0"/>
+                                </StackPanel>
+
+                                <TextBlock Grid.Column="1" Text="{Binding ToplamTutar, StringFormat='₺{0:F2}'}"
+                                          FontSize="12" FontWeight="Bold" Foreground="{StaticResource AccentBrush}"
+                                          VerticalAlignment="Center" Margin="20,0,0,0"/>
+                            </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <Grid Grid.Row="2" Margin="0,15,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox Name="YeniMasaTxt" Height="35" Padding="10"
+                            BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                            ToolTip="Yeni Masa Adı"/>
+
+                    <Button Grid.Column="1" Content="MASA EKLE" Style="{StaticResource PrimaryButtonStyle}"
+                           Margin="10,0,0,0" Click="MasaEkle_Click"/>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

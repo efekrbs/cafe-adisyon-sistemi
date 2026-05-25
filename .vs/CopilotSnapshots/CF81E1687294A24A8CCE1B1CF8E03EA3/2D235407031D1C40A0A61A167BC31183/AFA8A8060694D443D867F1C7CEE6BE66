@@ -1,0 +1,111 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
+using CafeAdisyon.Models;
+
+namespace CafeAdisyon.Views
+{
+    public partial class OdemeWindow : Window
+    {
+        private Masa _masa;
+        private List<Adisyon> _adisyonlar;
+        private List<int> _adisyonIds;
+
+        public OdemeWindow(Masa masa, List<Adisyon> adisyonlar, List<int> adisyonIds)
+        {
+            InitializeComponent();
+            _masa = masa;
+            _adisyonlar = adisyonlar;
+            _adisyonIds = adisyonIds;
+
+            Title = $"Ödeme Ekranı - {masa.MasaAdi}";
+            OdemeListesi.ItemsSource = _adisyonlar;
+
+            // Tüm itemleri default olarak seç
+            SahneAyarla();
+        }
+
+        private void SahneAyarla()
+        {
+            var panel = OdemeListesi.ItemsPanel as StackPanel;
+            var items = OdemeListesi.Items;
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                var container = OdemeListesi.ItemContainerGenerator.ContainerFromIndex(i) as FrameworkElement;
+                if (container != null)
+                {
+                    var checkBox = container.FindName("OdemeCheckBox") as CheckBox;
+                    if (checkBox != null)
+                    {
+                        checkBox.IsChecked = true;
+                    }
+                }
+            }
+
+            HesaplaToplamTutar();
+        }
+
+        private void OdemeYap_Click(object sender, RoutedEventArgs e)
+        {
+            var secilenAdisyonlar = new List<int>();
+
+            for (int i = 0; i < OdemeListesi.Items.Count; i++)
+            {
+                var container = OdemeListesi.ItemContainerGenerator.ContainerFromIndex(i) as FrameworkElement;
+                if (container != null)
+                {
+                    var checkBox = container.FindName("OdemeCheckBox") as CheckBox;
+                    if (checkBox != null && checkBox.IsChecked == true)
+                    {
+                        var adisyon = OdemeListesi.Items[i] as Adisyon;
+                        if (adisyon != null)
+                        {
+                            secilenAdisyonlar.Add(adisyon.AdisyonId);
+                        }
+                    }
+                }
+            }
+
+            if (secilenAdisyonlar.Count == 0)
+            {
+                MessageBox.Show("Lütfen en az bir ürün seçiniz!", "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            DialogResult = true;
+            Close();
+        }
+
+        private void Iptal_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+            Close();
+        }
+
+        private void HesaplaToplamTutar()
+        {
+            decimal toplam = 0;
+
+            for (int i = 0; i < OdemeListesi.Items.Count; i++)
+            {
+                var container = OdemeListesi.ItemContainerGenerator.ContainerFromIndex(i) as FrameworkElement;
+                if (container != null)
+                {
+                    var checkBox = container.FindName("OdemeCheckBox") as CheckBox;
+                    if (checkBox != null && checkBox.IsChecked == true)
+                    {
+                        var adisyon = OdemeListesi.Items[i] as Adisyon;
+                        if (adisyon != null)
+                        {
+                            toplam += adisyon.Toplam;
+                        }
+                    }
+                }
+            }
+
+            ToplamOdemeTutar.Text = $"₺{toplam:F2}";
+        }
+    }
+}

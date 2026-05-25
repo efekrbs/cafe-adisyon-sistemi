@@ -28,7 +28,6 @@ namespace CafeAdisyon.Views
 
         private void SahneAyarla()
         {
-            var panel = OdemeListesi.ItemsPanel as StackPanel;
             var items = OdemeListesi.Items;
 
             for (int i = 0; i < items.Count; i++)

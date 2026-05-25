@@ -11,6 +11,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="KeyfiDem\**" />
+    <EmbeddedResource Remove="KeyfiDem\**" />
+    <None Remove="KeyfiDem\**" />
+    <Page Remove="KeyfiDem\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
   </ItemGroup>

@@ -28,11 +28,8 @@ namespace CafeAdisyon
 
                 _connectionString = $"Data Source={DbPath};Version=3;";
 
-                // Veritabanı dosyası yoksa oluştur
-                if (!File.Exists(DbPath))
-                {
-                    CreateDatabase();
-                }
+                // Tablolar yoksa oluştur (IF NOT EXISTS ile güvenli)
+                CreateDatabase();
 
                 // Bağlantı test et
                 using (var conn = GetConnection())
@@ -49,12 +46,48 @@ namespace CafeAdisyon
 
         private static void CreateDatabase()
         {
+            const string sql = @"
+                PRAGMA foreign_keys = ON;
+
+                CREATE TABLE IF NOT EXISTS Masalar (
+                    masa_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    masa_adi TEXT NOT NULL,
+                    durum TEXT DEFAULT 'BOŞ'
+                );
+
+                CREATE TABLE IF NOT EXISTS Menu (
+                    urun_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    urun_adi TEXT NOT NULL,
+                    kategori TEXT,
+                    fiyat REAL NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS Adisyonlar (
+                    adisyon_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    masa_id INTEGER NOT NULL,
+                    urun_id INTEGER NOT NULL,
+                    adet INTEGER DEFAULT 1,
+                    odendi_mi INTEGER DEFAULT 0,
+                    eklenme_zamani DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (masa_id) REFERENCES Masalar(masa_id),
+                    FOREIGN KEY (urun_id) REFERENCES Menu(urun_id)
+                );
+
+                CREATE TABLE IF NOT EXISTS Satis_Gecmisi (
+                    satis_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    urun_id INTEGER NOT NULL,
+                    adet INTEGER NOT NULL,
+                    toplam_tutar REAL NOT NULL,
+                    satis_zamani DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (urun_id) REFERENCES Menu(urun_id)
+                );";
+
             using (var conn = GetConnection())
             {
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = File.ReadAllText("VeriTabanı.sql");
+                    cmd.CommandText = sql;
                     cmd.ExecuteNonQuery();
                 }
                 conn.Close();

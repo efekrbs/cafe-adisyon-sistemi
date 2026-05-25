@@ -72,7 +72,8 @@
                                 BorderThickness="1">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Padding="10" Margin="0,5">
+                                    <Border Padding="10" Margin="0,5">
+                                        <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
@@ -84,7 +85,7 @@
                                                       Foreground="{StaticResource TextBrush}"/>
                                             <TextBlock Text="{Binding Kategori}"
                                                       FontSize="10" Foreground="#666"/>
-                                            <TextBlock Text="{Binding Fiyat, StringFormat='₺{0:F2}'}"
+                                            <TextBlock Text="{Binding Fiyat, StringFormat={}&#8378;{0:F2}}"
                                                       FontSize="11" FontWeight="Bold"
                                                       Foreground="{StaticResource AccentBrush}" Margin="0,3,0,0"/>
                                         </StackPanel>
@@ -95,7 +96,8 @@
                                                Background="{StaticResource DangerBrush}"
                                                Click="SilUrun_Click"
                                                Tag="{Binding UrunId}"/>
-                                    </Grid>
+                                        </Grid>
+                                    </Border>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
@@ -115,7 +117,7 @@
 
                             <TextBlock Text="Kategori:" FontSize="11" Foreground="{StaticResource TextBrush}"/>
                             <ComboBox Name="KategoriCombo" Height="30" Margin="0,5,0,10"
-                                     Padding="8" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                                     BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" VerticalContentAlignment="Center">
                                 <ComboBoxItem>İçecek</ComboBoxItem>
                                 <ComboBoxItem>Yemek</ComboBoxItem>
                                 <ComboBoxItem>Tatlı</ComboBoxItem>
@@ -193,7 +195,8 @@
                         <ListBox Grid.Row="1" Name="RaporuListesi">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Padding="10" Margin="0,3">
+                                    <Border Padding="10" Margin="0,3">
+                                        <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
@@ -202,10 +205,11 @@
                                         <TextBlock Grid.Column="0" Text="{Binding Item1}" FontSize="12"
                                                   FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"/>
 
-                                        <TextBlock Grid.Column="1" Text="{Binding Item2, StringFormat='{0} adet'}"
+                                        <TextBlock Grid.Column="1" Text="{Binding Item2, StringFormat={}{0} adet}"
                                                   FontSize="12" Foreground="{StaticResource AccentBrush}"
                                                   FontWeight="Bold"/>
-                                    </Grid>
+                                        </Grid>
+                                    </Border>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
@@ -228,7 +232,8 @@
                         BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Grid Padding="15" Margin="0,5">
+                            <Border Padding="15" Margin="0,5" Background="Transparent">
+                            <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
@@ -245,6 +250,7 @@
                                           FontSize="12" FontWeight="Bold" Foreground="{StaticResource AccentBrush}"
                                           VerticalAlignment="Center" Margin="20,0,0,0"/>
                             </Grid>
+                            </Border>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
@@ -257,7 +263,7 @@
 
                     <TextBox Name="YeniMasaTxt" Height="35" Padding="10"
                             BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
-                            PlaceholderText="Yeni Masa Adı..."/>
+                            ToolTip="Yeni Masa Adı"/>
 
                     <Button Grid.Column="1" Content="MASA EKLE" Style="{StaticResource PrimaryButtonStyle}"
                            Margin="10,0,0,0" Click="MasaEkle_Click"/>
