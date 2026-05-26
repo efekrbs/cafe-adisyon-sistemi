@@ -439,11 +439,11 @@ namespace CafeAdisyon
             {
                 conn.Open();
                 using (var cmd = new SQLiteCommand(
-                    @"SELECT SUM(toplam_tutar) FROM Satis_Gecmisi
+                    @"SELECT COALESCE(SUM(toplam_tutar), 0) as total FROM Satis_Gecmisi
                       WHERE DATE(satis_zamani) = DATE('now', 'localtime')", conn))
                 {
                     var result = cmd.ExecuteScalar();
-                    toplam = result != DBNull.Value ? Convert.ToDecimal(result) : 0;
+                    toplam = result != DBNull.Value && result != null ? Convert.ToDecimal(result) : 0;
                 }
                 conn.Close();
             }
@@ -457,20 +457,26 @@ namespace CafeAdisyon
             {
                 conn.Open();
                 using (var cmd = new SQLiteCommand(
-                    @"SELECT m.urun_adi, SUM(sg.adet) as toplam_adet
+                    @"SELECT m.urun_adi, COALESCE(SUM(sg.adet), 0) as toplam_adet
                       FROM Satis_Gecmisi sg
                       INNER JOIN Menu m ON sg.urun_id = m.urun_id
-                      GROUP BY sg.urun_id
+                      GROUP BY sg.urun_id, m.urun_adi
                       ORDER BY toplam_adet DESC", conn))
                 {
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            rapor.Add((
-                                reader["urun_adi"].ToString(),
-                                Convert.ToInt32(reader["toplam_adet"])
-                            ));
+                            var urunAdi = reader["urun_adi"];
+                            var toplamAdet = reader["toplam_adet"];
+
+                            if (urunAdi != DBNull.Value && toplamAdet != DBNull.Value)
+                            {
+                                rapor.Add((
+                                    urunAdi.ToString() ?? "Bilinmiyor",
+                                    Convert.ToInt32(toplamAdet)
+                                ));
+                            }
                         }
                     }
                 }
