@@ -27,11 +27,11 @@
                           Padding="20,15"/>
             </Border>
 
-            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding Menu}" Margin="15">
+            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Menu}" Margin="15" Width="380">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal"/>
+                            <WrapPanel Orientation="Horizontal" MaxWidth="380"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
 
@@ -90,7 +90,7 @@
 
             <!-- Adisyon Listesi -->
             <ScrollViewer Grid.Row="1" Margin="0">
-                <ItemsControl ItemsSource="{Binding MasaAdisyonlari}">
+                <ItemsControl ItemsSource="{Binding MasaAdisyonlari}" Width="304">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border BorderBrush="{StaticResource BorderBrush}"
@@ -107,9 +107,30 @@
                                                   FontSize="13"
                                                   FontWeight="Bold"
                                                   Foreground="{StaticResource TextBrush}"/>
-                                        <TextBlock Text="{Binding Adet, StringFormat='Adet: {0}'}"
-                                                  FontSize="11"
-                                                  Foreground="#666666"/>
+
+                                        <Grid Margin="0,8,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Button Grid.Column="0" Content="-" Width="32" Height="24"
+                                                   Style="{StaticResource PrimaryButtonStyle}"
+                                                   Background="#FF9800" FontSize="13"
+                                                   Click="AdetAzalt_Click" Tag="{Binding AdisyonId}"/>
+
+                                            <TextBlock Grid.Column="1" Text="{Binding Adet}" FontSize="11"
+                                                      Foreground="#666666" Width="30" TextAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+
+                                            <Button Grid.Column="2" Content="+" Width="32" Height="24"
+                                                   Style="{StaticResource PrimaryButtonStyle}"
+                                                   Background="{StaticResource AccentBrush}" FontSize="13"
+                                                    Foreground="White"
+                                                   Click="AdetArtir_Click" Tag="{Binding AdisyonId}"/>
+                                        </Grid>
+
                                         <TextBlock Text="{Binding Toplam, StringFormat='₺{0:F2}'}"
                                                   FontSize="12"
                                                   FontWeight="Bold"
@@ -118,13 +139,14 @@
                                     </StackPanel>
 
                                     <Button Grid.Column="1"
-                                           Content="✕"
-                                           Width="32" Height="32"
+                                           Content="🗑️"
+                                           Width="40" Height="40"
                                            VerticalAlignment="Center"
                                            Style="{StaticResource PrimaryButtonStyle}"
                                            Background="{StaticResource DangerBrush}"
                                            Command="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.UrunCikarCommand}"
-                                           CommandParameter="{Binding}"/>
+                                           CommandParameter="{Binding}"
+                                           FontSize="10"/>
                                 </Grid>
                             </Border>
                         </DataTemplate>

@@ -85,8 +85,25 @@ namespace CafeAdisyon.Views
 
             try
             {
-                DatabaseService.AddUrun(urunAdi, kategori, fiyat);
-                MessageBox.Show("Ürün başarıyla eklendi!", "Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (_duzenleniyorUrunId == -1)
+                {
+                    // Yeni ürün ekle
+                    DatabaseService.AddUrun(urunAdi, kategori, fiyat);
+                    MessageBox.Show("Ürün başarıyla eklendi!", "Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    // Var olan ürünü güncelle
+                    DatabaseService.UpdateUrun(_duzenleniyorUrunId, urunAdi, kategori, fiyat);
+                    MessageBox.Show("Ürün başarıyla güncellendi!", "Başarılı", MessageBoxButton.OK, MessageBoxImage.Information);
+                    _duzenleniyorUrunId = -1;
+
+                    var btnEkle = FindName("EkleButton") as Button;
+                    if (FindName("EkleButton") is Button ekleBtn)
+                    {
+                        ekleBtn.Content = "ÜRÜN EKLE";
+                    }
+                }
 
                 UrunAdiTxt.Clear();
                 FiyatTxt.Clear();
@@ -98,6 +115,34 @@ namespace CafeAdisyon.Views
             catch (Exception ex)
             {
                 MessageBox.Show($"Hata: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private int _duzenleniyorUrunId = -1;
+
+        private void DuzenleUrun_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.Tag is int urunId)
+            {
+                var urunler = DatabaseService.GetAllUrunler();
+                var urun = urunler.FirstOrDefault(u => u.UrunId == urunId);
+
+                if (urun != null)
+                {
+                    _duzenleniyorUrunId = urunId;
+                    UrunAdiTxt.Text = urun.UrunAdi;
+                    KategoriCombo.SelectedItem = KategoriCombo.Items.Cast<ComboBoxItem>()
+                        .FirstOrDefault(cb => cb.Content.ToString() == urun.Kategori);
+                    FiyatTxt.Text = urun.Fiyat.ToString("F2");
+
+                    // Formu ÜRÜN GÜNCELLE moduna geçir
+                    var btnEkle = FindName("EkleButton") as Button;
+                    if (FindName("EkleButton") is Button ekleBtn)
+                    {
+                        ekleBtn.Content = "ÜRÜN GÜNCELLE";
+                    }
+                }
             }
         }
 
@@ -147,6 +192,28 @@ namespace CafeAdisyon.Views
                 masa.ToplamTutar = DatabaseService.GetMasaToplam(masa.MasaId);
             }
             MasalarListesi.ItemsSource = masalar;
+        }
+
+        private void SifirlaIstatistikler_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show(
+                "Tüm satış geçmişini sıfırlamak istediğinize emin misiniz?\n\nBu işlem geri alınamaz!",
+                "İstatistikleri Sıfırla", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    DatabaseService.SifirlaIstatistikler();
+                    YukleiStatistikler();
+                    MessageBox.Show("İstatistikler başarıyla sıfırlandı!", "Başarılı",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Hata: {ex.Message}", "Hata", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         private void MasaEkle_Click(object sender, RoutedEventArgs e)

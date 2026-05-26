@@ -307,6 +307,21 @@ namespace CafeAdisyon
             }
         }
 
+        public static void UpdateAdisyonAdet(int adisyonId, int adet)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand("UPDATE Adisyonlar SET adet=@adet WHERE adisyon_id=@id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", adisyonId);
+                    cmd.Parameters.AddWithValue("@adet", adet);
+                    cmd.ExecuteNonQuery();
+                }
+                conn.Close();
+            }
+        }
+
         // ÖDEME (Parçalı Ödeme)
         public static void PayAdisyonlar(int masaId, List<int> adisyonIds)
         {
@@ -425,7 +440,7 @@ namespace CafeAdisyon
                 conn.Open();
                 using (var cmd = new SQLiteCommand(
                     @"SELECT SUM(toplam_tutar) FROM Satis_Gecmisi
-                      WHERE DATE(satis_zamani) = DATE('now')", conn))
+                      WHERE DATE(satis_zamani) = DATE('now', 'localtime')", conn))
                 {
                     var result = cmd.ExecuteScalar();
                     toplam = result != DBNull.Value ? Convert.ToDecimal(result) : 0;
@@ -462,6 +477,19 @@ namespace CafeAdisyon
                 conn.Close();
             }
             return rapor;
+        }
+
+        public static void SifirlaIstatistikler()
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand("DELETE FROM Satis_Gecmisi", conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                conn.Close();
+            }
         }
     }
 }

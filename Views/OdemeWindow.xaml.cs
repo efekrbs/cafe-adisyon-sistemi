@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using CafeAdisyon.Models;
@@ -8,62 +9,25 @@ namespace CafeAdisyon.Views
 {
     public partial class OdemeWindow : Window
     {
-        private Masa _masa;
-        private List<Adisyon> _adisyonlar;
-        private List<int> _adisyonIds;
+        private Dictionary<int, CheckBox> _checkBoxMap = new Dictionary<int, CheckBox>();
+        public List<int> SecidilenleriOdeAdisynIds { get; private set; } = new List<int>();
 
         public OdemeWindow(Masa masa, List<Adisyon> adisyonlar, List<int> adisyonIds)
         {
             InitializeComponent();
-            _masa = masa;
-            _adisyonlar = adisyonlar;
-            _adisyonIds = adisyonIds;
-
             Title = $"Ödeme Ekranı - {masa.MasaAdi}";
-            OdemeListesi.ItemsSource = _adisyonlar;
-
-            // Tüm itemleri default olarak seç
-            SahneAyarla();
-        }
-
-        private void SahneAyarla()
-        {
-            var items = OdemeListesi.Items;
-
-            for (int i = 0; i < items.Count; i++)
-            {
-                var container = OdemeListesi.ItemContainerGenerator.ContainerFromIndex(i) as FrameworkElement;
-                if (container != null)
-                {
-                    var checkBox = container.FindName("OdemeCheckBox") as CheckBox;
-                    if (checkBox != null)
-                    {
-                        checkBox.IsChecked = true;
-                    }
-                }
-            }
-
-            HesaplaToplamTutar();
+            OdemeListesi.ItemsSource = adisyonlar;
         }
 
         private void OdemeYap_Click(object sender, RoutedEventArgs e)
         {
             var secilenAdisyonlar = new List<int>();
 
-            for (int i = 0; i < OdemeListesi.Items.Count; i++)
+            foreach (var kvp in _checkBoxMap)
             {
-                var container = OdemeListesi.ItemContainerGenerator.ContainerFromIndex(i) as FrameworkElement;
-                if (container != null)
+                if (kvp.Value.IsChecked == true)
                 {
-                    var checkBox = container.FindName("OdemeCheckBox") as CheckBox;
-                    if (checkBox != null && checkBox.IsChecked == true)
-                    {
-                        var adisyon = OdemeListesi.Items[i] as Adisyon;
-                        if (adisyon != null)
-                        {
-                            secilenAdisyonlar.Add(adisyon.AdisyonId);
-                        }
-                    }
+                    secilenAdisyonlar.Add(kvp.Key);
                 }
             }
 
@@ -73,6 +37,7 @@ namespace CafeAdisyon.Views
                 return;
             }
 
+            SecidilenleriOdeAdisynIds = secilenAdisyonlar;
             DialogResult = true;
             Close();
         }
@@ -87,16 +52,15 @@ namespace CafeAdisyon.Views
         {
             decimal toplam = 0;
 
-            for (int i = 0; i < OdemeListesi.Items.Count; i++)
+            var adisyonlar = OdemeListesi.ItemsSource as List<Adisyon>;
+            if (adisyonlar != null)
             {
-                var container = OdemeListesi.ItemContainerGenerator.ContainerFromIndex(i) as FrameworkElement;
-                if (container != null)
+                foreach (var adisyon in adisyonlar)
                 {
-                    var checkBox = container.FindName("OdemeCheckBox") as CheckBox;
-                    if (checkBox != null && checkBox.IsChecked == true)
+                    if (_checkBoxMap.ContainsKey(adisyon.AdisyonId))
                     {
-                        var adisyon = OdemeListesi.Items[i] as Adisyon;
-                        if (adisyon != null)
+                        var checkBox = _checkBoxMap[adisyon.AdisyonId];
+                        if (checkBox.IsChecked == true)
                         {
                             toplam += adisyon.Toplam;
                         }
@@ -105,6 +69,146 @@ namespace CafeAdisyon.Views
             }
 
             ToplamOdemeTutar.Text = $"₺{toplam:F2}";
+        }
+
+        protected override void OnContentRendered(EventArgs e)
+        {
+            base.OnContentRendered(e);
+
+            // Virtualization'ı disable et - Tüm item'ların generate edilmesi için
+            System.Windows.Controls.VirtualizingStackPanel.SetIsVirtualizing(OdemeListesi, false);
+
+            Dispatcher.InvokeAsync(() =>
+            {
+                // CheckBox'ları map'e ekle ve event'ler bind et
+                var adisyonlar = OdemeListesi.ItemsSource as List<Adisyon>;
+                if (adisyonlar != null)
+                {
+                    foreach (var adisyon in adisyonlar)
+                    {
+                        var container = OdemeListesi.ItemContainerGenerator.ContainerFromItem(adisyon) as FrameworkElement;
+                        if (container != null)
+                        {
+                            var checkBox = FindVisualChild<CheckBox>(container, "OdemeCheckBox");
+                            var border = FindVisualChild<Border>(container, "OdemeItemBorder");
+
+                            if (checkBox != null)
+                            {
+                                _checkBoxMap[adisyon.AdisyonId] = checkBox;
+                                checkBox.Checked += (s, args) => {
+                                    HesaplaToplamTutar();
+                                    GuncelleItemGorsel(adisyon.AdisyonId);
+                                };
+                                checkBox.Unchecked += (s, args) => {
+                                    HesaplaToplamTutar();
+                                    GuncelleItemGorsel(adisyon.AdisyonId);
+                                };
+                                checkBox.IsChecked = true; // Default tüm itemleri seç
+
+                                // Border referansını tut
+                                if (border != null)
+                                {
+                                    border.Tag = adisyon.AdisyonId;
+                                    GuncelleItemGorsel(adisyon.AdisyonId);
+                                }
+                            }
+                        }
+                    }
+
+                    HesaplaToplamTutar();
+                }
+            }, System.Windows.Threading.DispatcherPriority.Loaded);
+        }
+
+        private void Border_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var border = sender as Border;
+            if (border?.Tag is int adisyonId && _checkBoxMap.ContainsKey(adisyonId))
+            {
+                var checkBox = _checkBoxMap[adisyonId];
+                checkBox.IsChecked = !checkBox.IsChecked;
+            }
+        }
+
+        private void GuncelleItemGorsel(int adisyonId)
+        {
+            var adisyonlar = OdemeListesi.ItemsSource as List<Adisyon>;
+            if (adisyonlar != null)
+            {
+                var adisyon = adisyonlar.FirstOrDefault(a => a.AdisyonId == adisyonId);
+                if (adisyon != null)
+                {
+                    var container = OdemeListesi.ItemContainerGenerator.ContainerFromItem(adisyon) as FrameworkElement;
+                    if (container != null)
+                    {
+                        var border = FindVisualChild<Border>(container, "OdemeItemBorder");
+                        var checkBox = FindVisualChild<CheckBox>(container, "OdemeCheckBox");
+                        var checkIcon = FindVisualChild<System.Windows.Controls.TextBlock>(container, "CheckIcon");
+
+                        if (border != null && checkBox != null)
+                        {
+                            if (checkBox.IsChecked == true)
+                            {
+                                // Seçili: Yeşil border, açık yeşil arka plan
+                                border.BorderBrush = new System.Windows.Media.SolidColorBrush(
+                                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4CAF50"));
+                                border.Background = new System.Windows.Media.SolidColorBrush(
+                                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#E8F5E9"));
+
+                                // CheckBox gizle, Check icon göster
+                                if (checkBox != null) checkBox.Opacity = 0;
+                                if (checkIcon != null)
+                                {
+                                    checkIcon.Opacity = 1;
+                                    checkIcon.Foreground = new System.Windows.Media.SolidColorBrush(
+                                        (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4CAF50"));
+                                }
+                            }
+                            else
+                            {
+                                // Seçili olmayan: Gri border, beyaz arka plan
+                                border.BorderBrush = new System.Windows.Media.SolidColorBrush(
+                                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#DDDDDD"));
+                                border.Background = new System.Windows.Media.SolidColorBrush(
+                                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFFFFF"));
+
+                                // CheckBox göster, Check icon gizle
+                                if (checkBox != null) checkBox.Opacity = 1;
+                                if (checkIcon != null) checkIcon.Opacity = 0;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private T FindVisualChild<T>(DependencyObject parent, string childName) where T : DependencyObject
+        {
+            if (parent == null) return null;
+
+            T foundChild = null;
+
+            int childrenCount = System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < childrenCount; i++)
+            {
+                DependencyObject child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+
+                T typedChild = child as T;
+                if (typedChild != null)
+                {
+                    if (childName == "" || (child is FrameworkElement fe && fe.Name == childName))
+                    {
+                        foundChild = typedChild;
+                        break;
+                    }
+                }
+
+                foundChild = FindVisualChild<T>(child, childName);
+                if (foundChild != null)
+                    break;
+            }
+
+            return foundChild;
         }
     }
 }

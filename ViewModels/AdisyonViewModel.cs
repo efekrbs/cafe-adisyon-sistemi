@@ -1,12 +1,13 @@
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows.Input;
 using CafeAdisyon.Models;
 
 namespace CafeAdisyon.ViewModels
 {
-    public class AdisyonViewModel
+    public class AdisyonViewModel : INotifyPropertyChanged
     {
         private Masa _secilenMasa;
         public Masa SecilenMasa
@@ -24,12 +25,20 @@ namespace CafeAdisyon.ViewModels
 
         public event EventHandler<(Masa, List<int>)> OdemeYapildi;
         public event EventHandler KapalıViewClosed;
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private decimal _toplamTutar;
         public decimal ToplamTutar
         {
             get => _toplamTutar;
-            set => _toplamTutar = value;
+            set
+            {
+                if (_toplamTutar != value)
+                {
+                    _toplamTutar = value;
+                    PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(ToplamTutar)));
+                }
+            }
         }
 
         public AdisyonViewModel(Masa masa)
@@ -75,17 +84,37 @@ namespace CafeAdisyon.ViewModels
         {
             if (parameter is Urun urun)
             {
-                // Aynı ürün zaten varsa adetini arttır
                 var varolan = MasaAdisyonlari.FirstOrDefault(a => a.UrunId == urun.UrunId);
                 if (varolan != null)
                 {
-                    varolan.Adet++;
+                    AdetArtir(varolan.AdisyonId);
                 }
                 else
                 {
                     DatabaseService.AddAdisyon(_secilenMasa.MasaId, urun.UrunId, 1);
                     YukleMasaAdisyonlari();
                 }
+            }
+        }
+
+        public void AdetArtir(int adisyonId)
+        {
+            var adisyon = MasaAdisyonlari.FirstOrDefault(a => a.AdisyonId == adisyonId);
+            if (adisyon != null)
+            {
+                adisyon.Adet++;
+                DatabaseService.UpdateAdisyonAdet(adisyonId, adisyon.Adet);
+                HesaplaToplamTutar();
+            }
+        }
+
+        public void AdetAzalt(int adisyonId)
+        {
+            var adisyon = MasaAdisyonlari.FirstOrDefault(a => a.AdisyonId == adisyonId);
+            if (adisyon != null && adisyon.Adet > 1)
+            {
+                adisyon.Adet--;
+                DatabaseService.UpdateAdisyonAdet(adisyonId, adisyon.Adet);
                 HesaplaToplamTutar();
             }
         }
@@ -102,12 +131,21 @@ namespace CafeAdisyon.ViewModels
 
         private void OdemeEkrani()
         {
-            // Ödeme penceresini aç - MainWindow tarafından handle edilecek
+            // Tüm ödenmemiş adisyonları seç
+            var adisyonIds = MasaAdisyonlari.Where(a => a.OdenmeMi == 0).Select(a => a.AdisyonId).ToList();
+            if (adisyonIds.Count == 0)
+            {
+                System.Windows.MessageBox.Show("Hiç ödenmemiş ürün yok!", "Bilgi",
+                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+                return;
+            }
+            OdemeYapildi?.Invoke(this, (_secilenMasa, adisyonIds));
         }
 
         private void HesaplaToplamTutar()
         {
-            ToplamTutar = MasaAdisyonlari.Sum(a => a.Toplam);
+            decimal yeniToplam = MasaAdisyonlari.Sum(a => a.Toplam);
+            ToplamTutar = yeniToplam;
         }
 
         public void OdemeyiTamamla(List<int> secilenAdisyonIds)

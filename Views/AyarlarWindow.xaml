@@ -12,31 +12,31 @@
         </Grid.ColumnDefinitions>
 
         <!-- Sekme Seçimi -->
-        <Border Grid.Column="0" Background="{StaticResource SecondaryBrush}"
-               BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
+        <Border Background="{StaticResource SecondaryBrush}"
+               BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0" HorizontalAlignment="Center" Width="150">
             <StackPanel Margin="10">
                 <Button Name="MenuButton" Content="MENÜ YÖNETİMİ"
                        Width="130" Height="40" Margin="0,10"
                        Style="{StaticResource PrimaryButtonStyle}"
                        Click="MenuButton_Click"
-                       Background="{StaticResource AccentBrush}"/>
+                       Background="{StaticResource AccentBrush}" FontSize="12"/>
 
                 <Button Name="IstatistikButton" Content="İSTATİSTİKLER"
                        Width="130" Height="40" Margin="0,10"
                        Style="{StaticResource PrimaryButtonStyle}"
                        Click="IstatistikButton_Click"
-                       Background="#999999"/>
+                       Background="#999999" FontSize="12"/>
 
                 <Button Name="MasalarButton" Content="MASALAR"
                        Width="130" Height="40" Margin="0,10"
                        Style="{StaticResource PrimaryButtonStyle}"
                        Click="MasalarButton_Click"
-                       Background="#999999"/>
+                       Background="#999999" FontSize="12"/>
             </StackPanel>
         </Border>
 
         <!-- İçerik Alanı -->
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="1" Margin="44,0,0,0">
             <!-- Menü Yönetimi Sekmesi -->
             <Grid Name="MenuTabi" Margin="20">
                 <Grid.RowDefinitions>
@@ -47,7 +47,7 @@
 
                 <TextBlock Grid.Row="0" Text="MENÜ YÖNETİMİ"
                           FontSize="20" FontWeight="Bold"
-                          Foreground="{StaticResource TextBrush}" Margin="0,0,0,20"/>
+                          Foreground="{StaticResource TextBrush}" Margin="-21,2,21,19"/>
 
                 <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
@@ -64,38 +64,48 @@
 
                         <TextBlock Grid.Row="0" Text="Mevcut Ürünler:"
                                   FontSize="14" FontWeight="Bold"
-                                  Foreground="{StaticResource TextBrush}" Margin="0,0,0,10"/>
+                                  Foreground="{StaticResource TextBrush}" Margin="-26,-1,26,11"/>
 
                         <ListBox Grid.Row="1" Name="UrunlerListesi"
                                 Background="{StaticResource SecondaryBrush}"
                                 BorderBrush="{StaticResource BorderBrush}"
-                                BorderThickness="1">
+                                BorderThickness="1" Margin="-26,0,0,0">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border Padding="10" Margin="0,5">
                                         <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
 
-                                        <StackPanel Grid.Column="0">
-                                            <TextBlock Text="{Binding UrunAdi}"
-                                                      FontSize="12" FontWeight="Bold"
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="{Binding UrunAdi}"
+                                                      FontSize="16" FontWeight="Bold"
                                                       Foreground="{StaticResource TextBrush}"/>
-                                            <TextBlock Text="{Binding Kategori}"
-                                                      FontSize="10" Foreground="#666"/>
-                                            <TextBlock Text="{Binding Fiyat, StringFormat={}&#8378;{0:F2}}"
-                                                      FontSize="11" FontWeight="Bold"
+                                                <TextBlock Text="{Binding Kategori}"
+                                                      FontSize="12" Foreground="#666"/>
+                                                <TextBlock Text="{Binding Fiyat, StringFormat={}&#8378;{0:F2}}"
+                                                      FontSize="13" FontWeight="Bold"
                                                       Foreground="{StaticResource AccentBrush}" Margin="0,3,0,0"/>
-                                        </StackPanel>
+                                            </StackPanel>
 
-                                        <Button Grid.Column="1" Content="SİL"
-                                               Width="50" Height="30" Margin="10,0,0,0"
-                                               Style="{StaticResource PrimaryButtonStyle}"
-                                               Background="{StaticResource DangerBrush}"
-                                               Click="SilUrun_Click"
-                                               Tag="{Binding UrunId}"/>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10,0,0,0">
+                                                <Button Content="DÜZENLE"
+                                                   Width="70" Height="30" FontSize="8"
+                                                   Style="{StaticResource PrimaryButtonStyle}"
+                                                   Background="#2196F3"
+                                                   Click="DuzenleUrun_Click"
+                                                   Tag="{Binding UrunId}"
+                                                   Margin="0,0,5,0"/>
+
+                                                <Button Content="SİL"
+                                                   Width="50" Height="30" FontSize="8"
+                                                   Style="{StaticResource PrimaryButtonStyle}"
+                                                   Background="{StaticResource DangerBrush}"
+                                                   Click="SilUrun_Click"
+                                                   Tag="{Binding UrunId}"/>
+                                            </StackPanel>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -113,7 +123,7 @@
 
                             <TextBlock Text="Ürün Adı:" FontSize="11" Foreground="{StaticResource TextBrush}"/>
                             <TextBox Name="UrunAdiTxt" Height="30" Margin="0,5,0,10"
-                                    Padding="8" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"/>
+                                    Padding="8" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" FontSize="10"/>
 
                             <TextBlock Text="Kategori:" FontSize="11" Foreground="{StaticResource TextBrush}"/>
                             <ComboBox Name="KategoriCombo" Height="30" Margin="0,5,0,10"
@@ -126,9 +136,9 @@
 
                             <TextBlock Text="Fiyat (₺):" FontSize="11" Foreground="{StaticResource TextBrush}"/>
                             <TextBox Name="FiyatTxt" Height="30" Margin="0,5,0,10"
-                                    Padding="8" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"/>
+                                    Padding="8" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" FontSize="10"/>
 
-                            <Button Content="ÜRÜN EKLE" Style="{StaticResource PrimaryButtonStyle}"
+                            <Button Name="EkleButton" Content="ÜRÜN EKLE" Style="{StaticResource PrimaryButtonStyle}"
                                    Click="EkleUrun_Click" Height="35" Margin="0,10,0,0"/>
                         </StackPanel>
                     </Border>
@@ -189,25 +199,40 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0" Text="ÜRÜN SATIŞ RAPORU" FontSize="14"
-                                  FontWeight="Bold" Foreground="{StaticResource TextBrush}" Margin="0,0,0,15"/>
+                        <Grid Grid.Row="0" Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                        <ListBox Grid.Row="1" Name="RaporuListesi">
+                            <TextBlock Grid.Column="0" Text="ÜRÜN SATIŞ RAPORU" FontSize="14"
+                                      FontWeight="Bold" Foreground="{StaticResource TextBrush}"/>
+
+                            <Button Grid.Column="1" Content="🔄 SIFIRLANGıRSLA" Style="{StaticResource PrimaryButtonStyle}"
+                                   Background="#FF9800" Width="120" Height="30"
+                                   Click="SifirlaIstatistikler_Click" FontSize="10"/>
+                        </Grid>
+
+                        <ListBox Grid.Row="1" Name="RaporuListesi" MinHeight="150"
+                                Background="{StaticResource PrimaryBrush}"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="1" Padding="10">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Padding="10" Margin="0,3">
+                                    <Border Padding="10" Margin="0,5" Background="{StaticResource SecondaryBrush}"
+                                           BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4">
                                         <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Column="0" Text="{Binding Item1}" FontSize="12"
-                                                  FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"/>
+                                            <TextBlock Grid.Column="0" Text="{Binding Item1}" FontSize="12"
+                                                      FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"/>
 
-                                        <TextBlock Grid.Column="1" Text="{Binding Item2, StringFormat={}{0} adet}"
-                                                  FontSize="12" Foreground="{StaticResource AccentBrush}"
-                                                  FontWeight="Bold"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Item2, StringFormat={}{0} adet}"
+                                                      FontSize="12" Foreground="{StaticResource AccentBrush}"
+                                                      FontWeight="Bold"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -233,23 +258,23 @@
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Border Padding="15" Margin="0,5" Background="Transparent">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="{Binding MasaAdi}" FontSize="13" FontWeight="Bold"
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="{Binding MasaAdi}" FontSize="13" FontWeight="Bold"
                                               Foreground="{StaticResource TextBrush}"/>
-                                    <TextBlock Text="{Binding Durum}" FontSize="11" Foreground="#666" Margin="0,3,0,0"/>
-                                </StackPanel>
+                                        <TextBlock Text="{Binding Durum}" FontSize="11" Foreground="#666" Margin="0,3,0,0"/>
+                                    </StackPanel>
 
-                                <TextBlock Grid.Column="1" Text="{Binding ToplamTutar, StringFormat='₺{0:F2}'}"
+                                    <TextBlock Grid.Column="1" Text="{Binding ToplamTutar, StringFormat='₺{0:F2}'}"
                                           FontSize="12" FontWeight="Bold" Foreground="{StaticResource AccentBrush}"
                                           VerticalAlignment="Center" Margin="20,0,0,0"/>
-                            </Grid>
+                                </Grid>
                             </Border>
                         </DataTemplate>
                     </ListBox.ItemTemplate>

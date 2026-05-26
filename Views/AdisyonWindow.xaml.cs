@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Controls;
 using CafeAdisyon.Models;
 using CafeAdisyon.ViewModels;
 
@@ -18,12 +19,30 @@ namespace CafeAdisyon.Views
             _viewModel.OdemeYapildi += (s, data) => AcOdemeWindow(data.Item1, data.Item2);
         }
 
+        private void AdetArtir_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is int adisyonId)
+            {
+                _viewModel.AdetArtir(adisyonId);
+            }
+        }
+
+        private void AdetAzalt_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is int adisyonId)
+            {
+                _viewModel.AdetAzalt(adisyonId);
+            }
+        }
+
         private void AcOdemeWindow(Masa masa, List<int> adisyonIds)
         {
             var odemeWindow = new OdemeWindow(masa, _viewModel.MasaAdisyonlari.ToList(), adisyonIds);
             if (odemeWindow.ShowDialog() == true)
             {
-                _viewModel.OdemeyiTamamla(adisyonIds);
+                // Sadece seçilen adisyonları öde
+                var secilenAdisyonlar = odemeWindow.SecidilenleriOdeAdisynIds;
+                _viewModel.OdemeyiTamamla(secilenAdisyonlar);
                 Close();
             }
         }
