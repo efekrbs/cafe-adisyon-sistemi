@@ -23,7 +23,7 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Grid.Column="0"
-                          Text="KAFE ADİSYON SİSTEMİ"
+                          Text="Keyf-i Dem Adisyon Sistemi"
                           FontSize="24"
                           FontWeight="Bold"
                           Foreground="{StaticResource TextBrush}"/>

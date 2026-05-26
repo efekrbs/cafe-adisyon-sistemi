@@ -42,3 +42,5 @@ D:\GithubFiles\DaikinFiles\cafe-adisyon-sistemi\obj\Debug\net8.0-windows\refint\
 D:\GithubFiles\DaikinFiles\cafe-adisyon-sistemi\obj\Debug\net8.0-windows\CafeAdisyon.pdb
 D:\GithubFiles\DaikinFiles\cafe-adisyon-sistemi\obj\Debug\net8.0-windows\CafeAdisyon.genruntimeconfig.cache
 D:\GithubFiles\DaikinFiles\cafe-adisyon-sistemi\obj\Debug\net8.0-windows\ref\CafeAdisyon.dll
+D:\GithubFiles\DaikinFiles\cafe-adisyon-sistemi\obj\Debug\net8.0-windows\GeneratedInternalTypeHelper.g.cs
+D:\GithubFiles\DaikinFiles\cafe-adisyon-sistemi\obj\Debug\net8.0-windows\CafeAdisyon_MarkupCompile.lref

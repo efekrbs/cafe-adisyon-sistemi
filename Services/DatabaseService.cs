@@ -493,6 +493,41 @@ namespace CafeAdisyon
             return toplam;
         }
 
+        public static decimal GetAylikCiro()
+        {
+            decimal toplam = 0;
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(
+                    @"SELECT COALESCE(SUM(toplam_tutar), 0) as total FROM Satis_Gecmisi
+                      WHERE strftime('%Y-%m', satis_zamani) = strftime('%Y-%m', 'now', 'localtime')", conn))
+                {
+                    var result = cmd.ExecuteScalar();
+                    toplam = result != DBNull.Value && result != null ? Convert.ToDecimal(result) : 0;
+                }
+                conn.Close();
+            }
+            return toplam;
+        }
+
+        public static decimal GetToplamCiro()
+        {
+            decimal toplam = 0;
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(
+                    @"SELECT COALESCE(SUM(toplam_tutar), 0) as total FROM Satis_Gecmisi", conn))
+                {
+                    var result = cmd.ExecuteScalar();
+                    toplam = result != DBNull.Value && result != null ? Convert.ToDecimal(result) : 0;
+                }
+                conn.Close();
+            }
+            return toplam;
+        }
+
         public static List<(string UrunAdi, int ToplamAdet)> GetUrunSatisRaporu()
         {
             var rapor = new List<(string, int)>();
@@ -528,9 +563,9 @@ namespace CafeAdisyon
             return rapor;
         }
 
-        public static List<(string MasaAdi, string Tarih, string Saat, decimal ToplamTutar, decimal OdenenTutar, string OdemeShekli)> GetOdemeler()
+        public static List<Models.OdemeKaydi> GetOdemeler()
         {
-            var odemeler = new List<(string, string, string, decimal, decimal, string)>();
+            var odemeler = new List<Models.OdemeKaydi>();
             using (var conn = GetConnection())
             {
                 conn.Open();
@@ -552,17 +587,16 @@ namespace CafeAdisyon
                             if (masaAdi != DBNull.Value && odemetarihi != DBNull.Value)
                             {
                                 var tarihDt = Convert.ToDateTime(odemetarihi);
-                                var tarih = tarihDt.ToString("dd.MM.yyyy");
-                                var saat = tarihDt.ToString("HH:mm:ss");
 
-                                odemeler.Add((
-                                    masaAdi.ToString() ?? "Bilinmiyor",
-                                    tarih,
-                                    saat,
-                                    toplamTutar != DBNull.Value ? Convert.ToDecimal(toplamTutar) : 0,
-                                    odenenTutar != DBNull.Value ? Convert.ToDecimal(odenenTutar) : 0,
-                                    odemeShekli?.ToString() ?? "Nakit"
-                                ));
+                                odemeler.Add(new Models.OdemeKaydi
+                                {
+                                    MasaAdi = masaAdi.ToString() ?? "Bilinmiyor",
+                                    Tarih = tarihDt.ToString("dd.MM.yyyy"),
+                                    Saat = tarihDt.ToString("HH:mm:ss"),
+                                    ToplamTutar = toplamTutar != DBNull.Value ? Convert.ToDecimal(toplamTutar) : 0,
+                                    OdenenTutar = odenenTutar != DBNull.Value ? Convert.ToDecimal(odenenTutar) : 0,
+                                    OdemeShekli = odemeShekli?.ToString() ?? "Nakit"
+                                });
                             }
                         }
                     }

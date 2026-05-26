@@ -52,7 +52,7 @@ namespace CafeAdisyon.Views {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/CafeAdisyon;V1.0.0.0;component/views/adisyonwindow.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/CafeAdisyon;component/views/adisyonwindow.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\Views\AdisyonWindow.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

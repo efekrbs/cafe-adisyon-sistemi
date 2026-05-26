@@ -176,9 +176,11 @@ namespace CafeAdisyon.Views
             decimal gunlukCiro = DatabaseService.GetGunlukCiro();
             GunlukCiroText.Text = $"₺{gunlukCiro:F2}";
 
-            // Aylık ve toplam ciro (basitçe günlük çarpı 30 ve 365 olarak göster)
-            AylikCiroText.Text = $"₺{gunlukCiro * 30:F2}";
-            ToplamCiroText.Text = $"₺{gunlukCiro * 365:F2}";
+            decimal aylikCiro = DatabaseService.GetAylikCiro();
+            AylikCiroText.Text = $"₺{aylikCiro:F2}";
+
+            decimal toplamCiro = DatabaseService.GetToplamCiro();
+            ToplamCiroText.Text = $"₺{toplamCiro:F2}";
 
             var odemeler = DatabaseService.GetOdemeler();
             OdemelerListesi.ItemsSource = odemeler;
