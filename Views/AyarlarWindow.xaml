@@ -149,9 +149,11 @@
             <Grid Name="IstatistikTabi" Margin="20" Visibility="Hidden">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
+                <!-- Ciro Bilgileri -->
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -190,56 +192,107 @@
                     </Border>
                 </Grid>
 
-                <Border Grid.Row="1" Background="{StaticResource SecondaryBrush}"
-                       BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
-                       Margin="0,20,0,0" Padding="15" CornerRadius="6">
+                <!-- Başlık ve Sıfırla Butonu -->
+                <Grid Grid.Row="1" Margin="0,20,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="ÖDEME KAYITLARI" FontSize="16"
+                              FontWeight="Bold" Foreground="{StaticResource TextBrush}"/>
+
+                    <Button Grid.Column="1" Content="🔄 SIFIRLA" Style="{StaticResource PrimaryButtonStyle}"
+                           Background="#FF9800" Width="100" Height="35"
+                           Click="SifirlaIstatistikler_Click" FontSize="11"/>
+                </Grid>
+
+                <!-- Başlık Satırı -->
+                <Border Grid.Row="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,2" Padding="0,0,0,10" Margin="0,0,0,10">
                     <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="80"/>
+                        </Grid.ColumnDefinitions>
 
-                        <Grid Grid.Row="0" Margin="0,0,0,15">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <TextBlock Grid.Column="0" Text="ÜRÜN SATIŞ RAPORU" FontSize="14"
-                                      FontWeight="Bold" Foreground="{StaticResource TextBrush}"/>
-
-                            <Button Grid.Column="1" Content="🔄 SIFIRLANGıRSLA" Style="{StaticResource PrimaryButtonStyle}"
-                                   Background="#FF9800" Width="120" Height="30"
-                                   Click="SifirlaIstatistikler_Click" FontSize="10"/>
-                        </Grid>
-
-                        <ListBox Grid.Row="1" Name="RaporuListesi" MinHeight="150"
-                                Background="{StaticResource PrimaryBrush}"
-                                BorderBrush="{StaticResource BorderBrush}"
-                                BorderThickness="1" Padding="10">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Padding="10" Margin="0,5" Background="{StaticResource SecondaryBrush}"
-                                           BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="4">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <TextBlock Grid.Column="0" Text="{Binding Item1}" FontSize="12"
-                                                      FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"/>
-
-                                            <TextBlock Grid.Column="1" Text="{Binding Item2, StringFormat={}{0} adet}"
-                                                      FontSize="12" Foreground="{StaticResource AccentBrush}"
-                                                      FontWeight="Bold"/>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
+                        <TextBlock Grid.Column="0" Text="MASA ADI" FontSize="12"
+                                  FontWeight="Bold" Foreground="{StaticResource TextBrush}"/>
+                        <TextBlock Grid.Column="1" Text="TARİH" FontSize="12"
+                                  FontWeight="Bold" Foreground="{StaticResource TextBrush}" TextAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="SAAT" FontSize="12"
+                                  FontWeight="Bold" Foreground="{StaticResource TextBrush}" TextAlignment="Center"/>
+                        <TextBlock Grid.Column="3" Text="TUTAR" FontSize="12"
+                                  FontWeight="Bold" Foreground="{StaticResource TextBrush}" TextAlignment="Right"/>
+                        <TextBlock Grid.Column="4" Text="ÖDENEN" FontSize="12"
+                                  FontWeight="Bold" Foreground="{StaticResource TextBrush}" TextAlignment="Right"/>
+                        <TextBlock Grid.Column="5" Text="ŞEKLİ" FontSize="12"
+                                  FontWeight="Bold" Foreground="{StaticResource TextBrush}" TextAlignment="Center"/>
                     </Grid>
                 </Border>
+
+                <!-- Ödeme Listesi -->
+                <ListBox Grid.Row="2" Name="OdemelerListesi" Margin="0,50,0,0"
+                        Background="Transparent" BorderThickness="0" Padding="0">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="0,8" BorderBrush="{StaticResource BorderBrush}"
+                                   BorderThickness="0,0,0,1" Background="Transparent">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="80"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Masa Adı -->
+                                    <TextBlock Grid.Column="0" Text="{Binding Item1}" FontSize="11"
+                                              FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"
+                                              VerticalAlignment="Center"/>
+
+                                    <!-- Tarih -->
+                                    <TextBlock Grid.Column="1" Text="{Binding Item2}" FontSize="11"
+                                              Foreground="#666" TextAlignment="Center"
+                                              VerticalAlignment="Center"/>
+
+                                    <!-- Saat -->
+                                    <TextBlock Grid.Column="2" Text="{Binding Item3}" FontSize="11"
+                                              Foreground="#666" TextAlignment="Center"
+                                              VerticalAlignment="Center"/>
+
+                                    <!-- Toplam Tutar -->
+                                    <TextBlock Grid.Column="3" Text="{Binding Item4, StringFormat='₺{0:F2}'}"
+                                              FontSize="11" Foreground="{StaticResource AccentBrush}"
+                                              FontWeight="Bold" TextAlignment="Right"
+                                              VerticalAlignment="Center" Margin="10,0,10,0"/>
+
+                                    <!-- Ödenen Tutar -->
+                                    <TextBlock Grid.Column="4" Text="{Binding Item5, StringFormat='₺{0:F2}'}"
+                                              FontSize="11" Foreground="#4CAF50"
+                                              FontWeight="Bold" TextAlignment="Right"
+                                              VerticalAlignment="Center" Margin="10,0,10,0"/>
+
+                                    <!-- Ödeme Şekli -->
+                                    <Border Grid.Column="5" CornerRadius="4" Padding="6,4"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{Binding Item6, Converter={StaticResource OdemeShekliRengiConverter}}"/>
+                                        </Border.Background>
+                                        <TextBlock Text="{Binding Item6}" FontSize="10"
+                                                  Foreground="White" FontWeight="Bold"
+                                                  TextAlignment="Center"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </Grid>
 
             <!-- Masalar Sekmesi -->

@@ -42,7 +42,8 @@ namespace CafeAdisyon.Views
             {
                 // Sadece seçilen adisyonları öde
                 var secilenAdisyonlar = odemeWindow.SecidilenleriOdeAdisynIds;
-                _viewModel.OdemeyiTamamla(secilenAdisyonlar);
+                var odemeShekli = odemeWindow.OdemeShekli;
+                _viewModel.OdemeyiTamamla(secilenAdisyonlar, odemeShekli);
                 Close();
             }
         }

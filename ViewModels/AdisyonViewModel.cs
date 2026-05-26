@@ -148,9 +148,9 @@ namespace CafeAdisyon.ViewModels
             ToplamTutar = yeniToplam;
         }
 
-        public void OdemeyiTamamla(List<int> secilenAdisyonIds)
+        public void OdemeyiTamamla(List<int> secilenAdisyonIds, string odemeShekli = "Nakit")
         {
-            DatabaseService.PayAdisyonlar(_secilenMasa.MasaId, secilenAdisyonIds);
+            DatabaseService.PayAdisyonlar(_secilenMasa.MasaId, secilenAdisyonIds, odemeShekli);
             YukleMasaAdisyonlari();
             OdemeYapildi?.Invoke(this, (_secilenMasa, secilenAdisyonIds));
         }

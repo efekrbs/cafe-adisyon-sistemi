@@ -80,6 +80,17 @@ namespace CafeAdisyon
                     toplam_tutar REAL NOT NULL,
                     satis_zamani DATETIME DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (urun_id) REFERENCES Menu(urun_id)
+                );
+
+                CREATE TABLE IF NOT EXISTS Odemeler (
+                    odeme_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    masa_id INTEGER NOT NULL,
+                    masa_adi TEXT NOT NULL,
+                    toplam_tutar REAL NOT NULL,
+                    odenen_tutar REAL NOT NULL,
+                    odeme_sekli TEXT DEFAULT 'Nakit',
+                    odeme_tarihi DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (masa_id) REFERENCES Masalar(masa_id)
                 );";
 
             using (var conn = GetConnection())
@@ -323,7 +334,7 @@ namespace CafeAdisyon
         }
 
         // ÖDEME (Parçalı Ödeme)
-        public static void PayAdisyonlar(int masaId, List<int> adisyonIds)
+        public static void PayAdisyonlar(int masaId, List<int> adisyonIds, string odemeShekli = "Nakit")
         {
             using (var conn = GetConnection())
             {
@@ -332,12 +343,25 @@ namespace CafeAdisyon
                 {
                     try
                     {
+                        decimal toplamOdenecek = 0;
+                        string masaAdi = "";
+
+                        // Masa adını al
+                        using (var cmd = new SQLiteCommand("SELECT masa_adi FROM Masalar WHERE masa_id = @id", conn))
+                        {
+                            cmd.Parameters.AddWithValue("@id", masaId);
+                            var result = cmd.ExecuteScalar();
+                            masaAdi = result?.ToString() ?? "Bilinmiyor";
+                        }
+
                         foreach (int adisyonId in adisyonIds)
                         {
                             // Adisyon bilgilerini al
                             var adisyon = GetAdisyonById(adisyonId, conn);
                             if (adisyon != null)
                             {
+                                toplamOdenecek += adisyon.Toplam;
+
                                 // Satış geçmişine ekle
                                 InsertSatisGecmisi(adisyon, conn);
 
@@ -350,6 +374,9 @@ namespace CafeAdisyon
                                 }
                             }
                         }
+
+                        // Ödeme kaydını Odemeler tablosuna ekle
+                        InsertOdemeKaydi(masaId, masaAdi, toplamOdenecek, toplamOdenecek, odemeShekli, conn);
 
                         // Masa hala ödenmemiş item var mı kontrol et
                         int kalanItemler = 0;
@@ -421,6 +448,22 @@ namespace CafeAdisyon
             }
         }
 
+        private static void InsertOdemeKaydi(int masaId, string masaAdi, decimal toplamTutar, decimal odenenTutar, string odemeShekli, SQLiteConnection conn)
+        {
+            using (var cmd = new SQLiteCommand(
+                @"INSERT INTO Odemeler (masa_id, masa_adi, toplam_tutar, odenen_tutar, odeme_sekli, odeme_tarihi)
+                  VALUES (@masaId, @masaAdi, @toplamTutar, @odenenTutar, @odemeShekli, @odemetarihi)", conn))
+            {
+                cmd.Parameters.AddWithValue("@masaId", masaId);
+                cmd.Parameters.AddWithValue("@masaAdi", masaAdi);
+                cmd.Parameters.AddWithValue("@toplamTutar", toplamTutar);
+                cmd.Parameters.AddWithValue("@odenenTutar", odenenTutar);
+                cmd.Parameters.AddWithValue("@odemeShekli", odemeShekli);
+                cmd.Parameters.AddWithValue("@odemetarihi", DateTime.Now);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
         private static void UpdateMasaDurum(int masaId, string durum, SQLiteConnection conn)
         {
             using (var cmd = new SQLiteCommand("UPDATE Masalar SET durum = @durum WHERE masa_id = @id", conn))
@@ -485,12 +528,60 @@ namespace CafeAdisyon
             return rapor;
         }
 
+        public static List<(string MasaAdi, string Tarih, string Saat, decimal ToplamTutar, decimal OdenenTutar, string OdemeShekli)> GetOdemeler()
+        {
+            var odemeler = new List<(string, string, string, decimal, decimal, string)>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(
+                    @"SELECT masa_adi, odeme_tarihi, toplam_tutar, odenen_tutar, odeme_sekli
+                      FROM Odemeler
+                      ORDER BY odeme_tarihi DESC", conn))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var masaAdi = reader["masa_adi"];
+                            var odemetarihi = reader["odeme_tarihi"];
+                            var toplamTutar = reader["toplam_tutar"];
+                            var odenenTutar = reader["odenen_tutar"];
+                            var odemeShekli = reader["odeme_sekli"];
+
+                            if (masaAdi != DBNull.Value && odemetarihi != DBNull.Value)
+                            {
+                                var tarihDt = Convert.ToDateTime(odemetarihi);
+                                var tarih = tarihDt.ToString("dd.MM.yyyy");
+                                var saat = tarihDt.ToString("HH:mm:ss");
+
+                                odemeler.Add((
+                                    masaAdi.ToString() ?? "Bilinmiyor",
+                                    tarih,
+                                    saat,
+                                    toplamTutar != DBNull.Value ? Convert.ToDecimal(toplamTutar) : 0,
+                                    odenenTutar != DBNull.Value ? Convert.ToDecimal(odenenTutar) : 0,
+                                    odemeShekli?.ToString() ?? "Nakit"
+                                ));
+                            }
+                        }
+                    }
+                }
+                conn.Close();
+            }
+            return odemeler;
+        }
+
         public static void SifirlaIstatistikler()
         {
             using (var conn = GetConnection())
             {
                 conn.Open();
                 using (var cmd = new SQLiteCommand("DELETE FROM Satis_Gecmisi", conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                using (var cmd = new SQLiteCommand("DELETE FROM Odemeler", conn))
                 {
                     cmd.ExecuteNonQuery();
                 }

@@ -180,8 +180,8 @@ namespace CafeAdisyon.Views
             AylikCiroText.Text = $"₺{gunlukCiro * 30:F2}";
             ToplamCiroText.Text = $"₺{gunlukCiro * 365:F2}";
 
-            var rapor = DatabaseService.GetUrunSatisRaporu();
-            RaporuListesi.ItemsSource = rapor;
+            var odemeler = DatabaseService.GetOdemeler();
+            OdemelerListesi.ItemsSource = odemeler;
         }
 
         private void YukleMasalar()

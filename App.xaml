@@ -1,8 +1,12 @@
 <Application x:Class="CafeAdisyon.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:CafeAdisyon"
              StartupUri="Views/MainWindow.xaml">
     <Application.Resources>
+        <!-- Converters -->
+        <local:OdemeShekliRengiConverter x:Key="OdemeShekliRengiConverter"/>
+
         <!-- Beyaz Tema -->
         <Color x:Key="PrimaryColor">#FFFFFF</Color>
         <Color x:Key="SecondaryColor">#F5F5F5</Color>

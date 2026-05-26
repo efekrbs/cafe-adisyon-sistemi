@@ -11,6 +11,7 @@ namespace CafeAdisyon.Views
     {
         private Dictionary<int, CheckBox> _checkBoxMap = new Dictionary<int, CheckBox>();
         public List<int> SecidilenleriOdeAdisynIds { get; private set; } = new List<int>();
+        public string OdemeShekli { get; private set; } = "Nakit";
 
         public OdemeWindow(Masa masa, List<Adisyon> adisyonlar, List<int> adisyonIds)
         {
@@ -37,6 +38,7 @@ namespace CafeAdisyon.Views
                 return;
             }
 
+            OdemeShekli = KartRadio.IsChecked == true ? "Kart" : "Nakit";
             SecidilenleriOdeAdisynIds = secilenAdisyonlar;
             DialogResult = true;
             Close();
