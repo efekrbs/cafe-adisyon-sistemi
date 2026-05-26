@@ -188,7 +188,7 @@ namespace CafeAdisyon.Views {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/CafeAdisyon;component/views/ayarlarwindow.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/CafeAdisyon;V1.0.0.0;component/views/ayarlarwindow.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\Views\AyarlarWindow.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

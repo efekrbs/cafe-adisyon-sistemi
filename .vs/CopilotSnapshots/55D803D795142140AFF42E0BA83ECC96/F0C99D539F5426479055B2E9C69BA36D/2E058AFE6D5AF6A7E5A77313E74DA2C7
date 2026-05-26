@@ -1,0 +1,158 @@
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Windows.Input;
+using CafeAdisyon.Models;
+
+namespace CafeAdisyon.ViewModels
+{
+    public class AdisyonViewModel : INotifyPropertyChanged
+    {
+        private Masa _secilenMasa;
+        public Masa SecilenMasa
+        {
+            get => _secilenMasa;
+            set => _secilenMasa = value;
+        }
+
+        public ObservableCollection<Urun> Menu { get; }
+        public ObservableCollection<Adisyon> MasaAdisyonlari { get; }
+        public ICommand UrunEkleCommand { get; }
+        public ICommand UrunCikarCommand { get; }
+        public ICommand OdeCommand { get; }
+        public ICommand KapaCommand { get; }
+
+        public event EventHandler<(Masa, List<int>)> OdemeYapildi;
+        public event EventHandler KapalıViewClosed;
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private decimal _toplamTutar;
+        public decimal ToplamTutar
+        {
+            get => _toplamTutar;
+            set
+            {
+                if (_toplamTutar != value)
+                {
+                    _toplamTutar = value;
+                    PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(ToplamTutar)));
+                }
+            }
+        }
+
+        public AdisyonViewModel(Masa masa)
+        {
+            _secilenMasa = masa;
+            Menu = new ObservableCollection<Urun>();
+            MasaAdisyonlari = new ObservableCollection<Adisyon>();
+
+            UrunEkleCommand = new RelayCommand(UrunEkle);
+            UrunCikarCommand = new RelayCommand(UrunCikar);
+            OdeCommand = new RelayCommand(_ => OdemeEkrani());
+            KapaCommand = new RelayCommand(_ => KapalıViewClosed?.Invoke(this, EventArgs.Empty));
+
+            YukleMasaVerileri();
+        }
+
+        private void YukleMasaVerileri()
+        {
+            // Menüyü yükle
+            Menu.Clear();
+            var menu = DatabaseService.GetAllUrunler();
+            foreach (var urun in menu)
+            {
+                Menu.Add(urun);
+            }
+
+            // Adisyonları yükle
+            YukleMasaAdisyonlari();
+        }
+
+        private void YukleMasaAdisyonlari()
+        {
+            MasaAdisyonlari.Clear();
+            var adisyonlar = DatabaseService.GetMasaAdisyonlari(_secilenMasa.MasaId, true);
+            foreach (var adisyon in adisyonlar)
+            {
+                MasaAdisyonlari.Add(adisyon);
+            }
+            HesaplaToplamTutar();
+        }
+
+        private void UrunEkle(object parameter)
+        {
+            if (parameter is Urun urun)
+            {
+                var varolan = MasaAdisyonlari.FirstOrDefault(a => a.UrunId == urun.UrunId);
+                if (varolan != null)
+                {
+                    AdetArtir(varolan.AdisyonId);
+                }
+                else
+                {
+                    DatabaseService.AddAdisyon(_secilenMasa.MasaId, urun.UrunId, 1);
+                    YukleMasaAdisyonlari();
+                }
+            }
+        }
+
+        public void AdetArtir(int adisyonId)
+        {
+            var adisyon = MasaAdisyonlari.FirstOrDefault(a => a.AdisyonId == adisyonId);
+            if (adisyon != null)
+            {
+                adisyon.Adet++;
+                DatabaseService.UpdateAdisyonAdet(adisyonId, adisyon.Adet);
+                HesaplaToplamTutar();
+            }
+        }
+
+        public void AdetAzalt(int adisyonId)
+        {
+            var adisyon = MasaAdisyonlari.FirstOrDefault(a => a.AdisyonId == adisyonId);
+            if (adisyon != null && adisyon.Adet > 1)
+            {
+                adisyon.Adet--;
+                DatabaseService.UpdateAdisyonAdet(adisyonId, adisyon.Adet);
+                HesaplaToplamTutar();
+            }
+        }
+
+        private void UrunCikar(object parameter)
+        {
+            if (parameter is Adisyon adisyon)
+            {
+                DatabaseService.DeleteAdisyon(adisyon.AdisyonId);
+                YukleMasaAdisyonlari();
+                HesaplaToplamTutar();
+            }
+        }
+
+        private void OdemeEkrani()
+        {
+            // Tüm ödenmemiş adisyonları seç
+            var adisyonIds = MasaAdisyonlari.Where(a => a.OdenmeMi == 0).Select(a => a.AdisyonId).ToList();
+            if (adisyonIds.Count == 0)
+            {
+                System.Windows.MessageBox.Show("Hiç ödenmemiş ürün yok!", "Bilgi",
+                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+                return;
+            }
+            OdemeYapildi?.Invoke(this, (_secilenMasa, adisyonIds));
+        }
+
+        private void HesaplaToplamTutar()
+        {
+            decimal yeniToplam = MasaAdisyonlari.Sum(a => a.Toplam);
+            ToplamTutar = yeniToplam;
+        }
+
+        public void OdemeyiTamamla(List<int> secilenAdisyonIds, string odemeShekli = "Nakit")
+        {
+            DatabaseService.PayAdisyonlar(_secilenMasa.MasaId, secilenAdisyonIds, odemeShekli);
+            YukleMasaAdisyonlari();
+            OdemeYapildi?.Invoke(this, (_secilenMasa, secilenAdisyonIds));
+        }
+    }
+}

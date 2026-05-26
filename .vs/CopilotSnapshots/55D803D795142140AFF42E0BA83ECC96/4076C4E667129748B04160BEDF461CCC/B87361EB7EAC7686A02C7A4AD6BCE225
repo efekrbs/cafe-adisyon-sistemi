@@ -1,0 +1,626 @@
+﻿using System;
+using System.Data;
+using System.Data.SQLite;
+using System.IO;
+using CafeAdisyon.Models;
+
+namespace CafeAdisyon
+{
+    public static class DatabaseService
+    {
+        private static string _connectionString;
+        private static readonly string DbPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "CafeAdisyon",
+            "database.db"
+        );
+
+        public static void Initialize()
+        {
+            try
+            {
+                // Veritabanı dizinini oluştur
+                string dbDir = Path.GetDirectoryName(DbPath);
+                if (!Directory.Exists(dbDir))
+                {
+                    Directory.CreateDirectory(dbDir);
+                }
+
+                _connectionString = $"Data Source={DbPath};Version=3;";
+
+                // Tablolar yoksa oluştur (IF NOT EXISTS ile güvenli)
+                CreateDatabase();
+
+                // Bağlantı test et
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    conn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Veritabanı başlatılamadı: {ex.Message}");
+            }
+        }
+
+        private static void CreateDatabase()
+        {
+            const string sql = @"
+                PRAGMA foreign_keys = ON;
+
+                CREATE TABLE IF NOT EXISTS Masalar (
+                    masa_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    masa_adi TEXT NOT NULL,
+                    durum TEXT DEFAULT 'BOŞ'
+                );
+
+                CREATE TABLE IF NOT EXISTS Menu (
+                    urun_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    urun_adi TEXT NOT NULL,
+                    kategori TEXT,
+                    fiyat REAL NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS Adisyonlar (
+                    adisyon_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    masa_id INTEGER NOT NULL,
+                    urun_id INTEGER NOT NULL,
+                    adet INTEGER DEFAULT 1,
+                    odendi_mi INTEGER DEFAULT 0,
+                    eklenme_zamani DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (masa_id) REFERENCES Masalar(masa_id),
+                    FOREIGN KEY (urun_id) REFERENCES Menu(urun_id)
+                );
+
+                CREATE TABLE IF NOT EXISTS Satis_Gecmisi (
+                    satis_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    urun_id INTEGER NOT NULL,
+                    adet INTEGER NOT NULL,
+                    toplam_tutar REAL NOT NULL,
+                    satis_zamani DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (urun_id) REFERENCES Menu(urun_id)
+                );
+
+                CREATE TABLE IF NOT EXISTS Odemeler (
+                    odeme_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    masa_id INTEGER NOT NULL,
+                    masa_adi TEXT NOT NULL,
+                    toplam_tutar REAL NOT NULL,
+                    odenen_tutar REAL NOT NULL,
+                    odeme_sekli TEXT DEFAULT 'Nakit',
+                    odeme_tarihi DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (masa_id) REFERENCES Masalar(masa_id)
+                );";
+
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = sql;
+                    cmd.ExecuteNonQuery();
+                }
+                conn.Close();
+            }
+        }
+
+        public static SQLiteConnection GetConnection()
+        {
+            return new SQLiteConnection(_connectionString);
+        }
+
+        // MASALAR
+        public static List<Masa> GetAllMasalar()
+        {
+            var masalar = new List<Masa>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand("SELECT * FROM Masalar", conn))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            masalar.Add(new Masa
+                            {
+                                MasaId = Convert.ToInt32(reader["masa_id"]),
+                                MasaAdi = reader["masa_adi"].ToString(),
+                                Durum = reader["durum"].ToString()
+                            });
+                        }
+                    }
+                }
+                conn.Close();
+            }
+            return masalar;
+        }
+
+        public static void AddMasa(string masaAdi)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(
+                    "INSERT INTO Masalar (masa_adi, durum) VALUES (@adi, 'BOŞ')", conn))
+                {
+                    cmd.Parameters.AddWithValue("@adi", masaAdi);
+                    cmd.ExecuteNonQuery();
+                }
+                conn.Close();
+            }
+        }
+
+        // MENÜ
+        public static List<Urun> GetAllUrunler()
+        {
+            var urunler = new List<Urun>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand("SELECT * FROM Menu ORDER BY kategori", conn))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            urunler.Add(new Urun
+                            {
+                                UrunId = Convert.ToInt32(reader["urun_id"]),
+                                UrunAdi = reader["urun_adi"].ToString(),
+                                Kategori = reader["kategori"].ToString(),
+                                Fiyat = Convert.ToDecimal(reader["fiyat"])
+                            });
+                        }
+                    }
+                }
+                conn.Close();
+            }
+            return urunler;
+        }
+
+        public static void AddUrun(string urunAdi, string kategori, decimal fiyat)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(
+                    "INSERT INTO Menu (urun_adi, kategori, fiyat) VALUES (@adi, @kategori, @fiyat)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@adi", urunAdi);
+                    cmd.Parameters.AddWithValue("@kategori", kategori);
+                    cmd.Parameters.AddWithValue("@fiyat", fiyat);
+                    cmd.ExecuteNonQuery();
+                }
+                conn.Close();
+            }
+        }
+
+        public static void UpdateUrun(int urunId, string urunAdi, string kategori, decimal fiyat)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(
+                    "UPDATE Menu SET urun_adi=@adi, kategori=@kategori, fiyat=@fiyat WHERE urun_id=@id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", urunId);
+                    cmd.Parameters.AddWithValue("@adi", urunAdi);
+                    cmd.Parameters.AddWithValue("@kategori", kategori);
+                    cmd.Parameters.AddWithValue("@fiyat", fiyat);
+                    cmd.ExecuteNonQuery();
+                }
+                conn.Close();
+            }
+        }
+
+        public static void DeleteUrun(int urunId)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand("DELETE FROM Menu WHERE urun_id=@id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", urunId);
+                    cmd.ExecuteNonQuery();
+                }
+                conn.Close();
+            }
+        }
+
+        // ADİSYONLAR
+        public static List<Adisyon> GetMasaAdisyonlari(int masaId, bool odenmemisler = true)
+        {
+            var adisyonlar = new List<Adisyon>();
+            string query = @"
+                SELECT a.adisyon_id, a.masa_id, a.urun_id, m.urun_adi, m.fiyat, a.adet, a.odendi_mi, a.eklenme_zamani
+                FROM Adisyonlar a
+                INNER JOIN Menu m ON a.urun_id = m.urun_id
+                WHERE a.masa_id = @masaId";
+
+            if (odenmemisler)
+                query += " AND a.odendi_mi = 0";
+
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@masaId", masaId);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            adisyonlar.Add(new Adisyon
+                            {
+                                AdisyonId = Convert.ToInt32(reader["adisyon_id"]),
+                                MasaId = Convert.ToInt32(reader["masa_id"]),
+                                UrunId = Convert.ToInt32(reader["urun_id"]),
+                                UrunAdi = reader["urun_adi"].ToString(),
+                                Fiyat = Convert.ToDecimal(reader["fiyat"]),
+                                Adet = Convert.ToInt32(reader["adet"]),
+                                OdenmeMi = Convert.ToInt32(reader["odendi_mi"]),
+                                EklenmeTarihi = Convert.ToDateTime(reader["eklenme_zamani"])
+                            });
+                        }
+                    }
+                }
+                conn.Close();
+            }
+            return adisyonlar;
+        }
+
+        public static decimal GetMasaToplam(int masaId)
+        {
+            decimal toplam = 0;
+            var adisyonlar = GetMasaAdisyonlari(masaId, true);
+            foreach (var adisyon in adisyonlar)
+            {
+                toplam += adisyon.Toplam;
+            }
+            return toplam;
+        }
+
+        public static void AddAdisyon(int masaId, int urunId, int adet)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(
+                    @"INSERT INTO Adisyonlar (masa_id, urun_id, adet, odendi_mi, eklenme_zamani)
+                      VALUES (@masaId, @urunId, @adet, 0, @zaman)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@masaId", masaId);
+                    cmd.Parameters.AddWithValue("@urunId", urunId);
+                    cmd.Parameters.AddWithValue("@adet", adet);
+                    cmd.Parameters.AddWithValue("@zaman", DateTime.Now);
+                    cmd.ExecuteNonQuery();
+                }
+
+                // Masa durumunu güncelle
+                UpdateMasaDurum(masaId, "DOLU", conn);
+                conn.Close();
+            }
+        }
+
+        public static void DeleteAdisyon(int adisyonId)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand("DELETE FROM Adisyonlar WHERE adisyon_id=@id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", adisyonId);
+                    cmd.ExecuteNonQuery();
+                }
+                conn.Close();
+            }
+        }
+
+        public static void UpdateAdisyonAdet(int adisyonId, int adet)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand("UPDATE Adisyonlar SET adet=@adet WHERE adisyon_id=@id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", adisyonId);
+                    cmd.Parameters.AddWithValue("@adet", adet);
+                    cmd.ExecuteNonQuery();
+                }
+                conn.Close();
+            }
+        }
+
+        // ÖDEME (Parçalı Ödeme)
+        public static void PayAdisyonlar(int masaId, List<int> adisyonIds, string odemeShekli = "Nakit")
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var trans = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        decimal toplamOdenecek = 0;
+                        string masaAdi = "";
+
+                        // Masa adını al
+                        using (var cmd = new SQLiteCommand("SELECT masa_adi FROM Masalar WHERE masa_id = @id", conn))
+                        {
+                            cmd.Parameters.AddWithValue("@id", masaId);
+                            var result = cmd.ExecuteScalar();
+                            masaAdi = result?.ToString() ?? "Bilinmiyor";
+                        }
+
+                        foreach (int adisyonId in adisyonIds)
+                        {
+                            // Adisyon bilgilerini al
+                            var adisyon = GetAdisyonById(adisyonId, conn);
+                            if (adisyon != null)
+                            {
+                                toplamOdenecek += adisyon.Toplam;
+
+                                // Satış geçmişine ekle
+                                InsertSatisGecmisi(adisyon, conn);
+
+                                // Adisyonu ödenmiş olarak işaretle
+                                using (var cmd = new SQLiteCommand(
+                                    "UPDATE Adisyonlar SET odendi_mi = 1 WHERE adisyon_id = @id", conn))
+                                {
+                                    cmd.Parameters.AddWithValue("@id", adisyonId);
+                                    cmd.ExecuteNonQuery();
+                                }
+                            }
+                        }
+
+                        // Ödeme kaydını Odemeler tablosuna ekle
+                        InsertOdemeKaydi(masaId, masaAdi, toplamOdenecek, toplamOdenecek, odemeShekli, conn);
+
+                        // Masa hala ödenmemiş item var mı kontrol et
+                        int kalanItemler = 0;
+                        using (var cmd = new SQLiteCommand(
+                            "SELECT COUNT(*) FROM Adisyonlar WHERE masa_id = @masaId AND odendi_mi = 0", conn))
+                        {
+                            cmd.Parameters.AddWithValue("@masaId", masaId);
+                            kalanItemler = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
+
+                        // Tüm itemler ödendiyse masayı boş yap
+                        if (kalanItemler == 0)
+                        {
+                            UpdateMasaDurum(masaId, "BOŞ", conn);
+                        }
+
+                        trans.Commit();
+                    }
+                    catch
+                    {
+                        trans.Rollback();
+                        throw;
+                    }
+                }
+                conn.Close();
+            }
+        }
+
+        private static Adisyon GetAdisyonById(int adisyonId, SQLiteConnection conn)
+        {
+            using (var cmd = new SQLiteCommand(
+                @"SELECT a.*, m.urun_adi, m.fiyat
+                  FROM Adisyonlar a
+                  INNER JOIN Menu m ON a.urun_id = m.urun_id
+                  WHERE a.adisyon_id = @id", conn))
+            {
+                cmd.Parameters.AddWithValue("@id", adisyonId);
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return new Adisyon
+                        {
+                            AdisyonId = Convert.ToInt32(reader["adisyon_id"]),
+                            MasaId = Convert.ToInt32(reader["masa_id"]),
+                            UrunId = Convert.ToInt32(reader["urun_id"]),
+                            UrunAdi = reader["urun_adi"].ToString(),
+                            Fiyat = Convert.ToDecimal(reader["fiyat"]),
+                            Adet = Convert.ToInt32(reader["adet"]),
+                            OdenmeMi = Convert.ToInt32(reader["odendi_mi"])
+                        };
+                    }
+                }
+            }
+            return null;
+        }
+
+        private static void InsertSatisGecmisi(Adisyon adisyon, SQLiteConnection conn)
+        {
+            using (var cmd = new SQLiteCommand(
+                @"INSERT INTO Satis_Gecmisi (urun_id, adet, toplam_tutar, satis_zamani)
+                  VALUES (@urunId, @adet, @tutar, @zaman)", conn))
+            {
+                cmd.Parameters.AddWithValue("@urunId", adisyon.UrunId);
+                cmd.Parameters.AddWithValue("@adet", adisyon.Adet);
+                cmd.Parameters.AddWithValue("@tutar", adisyon.Toplam);
+                cmd.Parameters.AddWithValue("@zaman", DateTime.Now);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        private static void InsertOdemeKaydi(int masaId, string masaAdi, decimal toplamTutar, decimal odenenTutar, string odemeShekli, SQLiteConnection conn)
+        {
+            using (var cmd = new SQLiteCommand(
+                @"INSERT INTO Odemeler (masa_id, masa_adi, toplam_tutar, odenen_tutar, odeme_sekli, odeme_tarihi)
+                  VALUES (@masaId, @masaAdi, @toplamTutar, @odenenTutar, @odemeShekli, @odemetarihi)", conn))
+            {
+                cmd.Parameters.AddWithValue("@masaId", masaId);
+                cmd.Parameters.AddWithValue("@masaAdi", masaAdi);
+                cmd.Parameters.AddWithValue("@toplamTutar", toplamTutar);
+                cmd.Parameters.AddWithValue("@odenenTutar", odenenTutar);
+                cmd.Parameters.AddWithValue("@odemeShekli", odemeShekli);
+                cmd.Parameters.AddWithValue("@odemetarihi", DateTime.Now);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        private static void UpdateMasaDurum(int masaId, string durum, SQLiteConnection conn)
+        {
+            using (var cmd = new SQLiteCommand("UPDATE Masalar SET durum = @durum WHERE masa_id = @id", conn))
+            {
+                cmd.Parameters.AddWithValue("@durum", durum);
+                cmd.Parameters.AddWithValue("@id", masaId);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        // İSTATİSTİKLER
+        public static decimal GetGunlukCiro()
+        {
+            decimal toplam = 0;
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(
+                    @"SELECT COALESCE(SUM(toplam_tutar), 0) as total FROM Satis_Gecmisi
+                      WHERE DATE(satis_zamani) = DATE('now', 'localtime')", conn))
+                {
+                    var result = cmd.ExecuteScalar();
+                    toplam = result != DBNull.Value && result != null ? Convert.ToDecimal(result) : 0;
+                }
+                conn.Close();
+            }
+            return toplam;
+        }
+
+        public static decimal GetAylikCiro()
+        {
+            decimal toplam = 0;
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(
+                    @"SELECT COALESCE(SUM(toplam_tutar), 0) as total FROM Satis_Gecmisi
+                      WHERE strftime('%Y-%m', satis_zamani) = strftime('%Y-%m', 'now', 'localtime')", conn))
+                {
+                    var result = cmd.ExecuteScalar();
+                    toplam = result != DBNull.Value && result != null ? Convert.ToDecimal(result) : 0;
+                }
+                conn.Close();
+            }
+            return toplam;
+        }
+
+        public static decimal GetToplamCiro()
+        {
+            decimal toplam = 0;
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(
+                    @"SELECT COALESCE(SUM(toplam_tutar), 0) as total FROM Satis_Gecmisi", conn))
+                {
+                    var result = cmd.ExecuteScalar();
+                    toplam = result != DBNull.Value && result != null ? Convert.ToDecimal(result) : 0;
+                }
+                conn.Close();
+            }
+            return toplam;
+        }
+
+        public static List<(string UrunAdi, int ToplamAdet)> GetUrunSatisRaporu()
+        {
+            var rapor = new List<(string, int)>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(
+                    @"SELECT m.urun_adi, COALESCE(SUM(sg.adet), 0) as toplam_adet
+                      FROM Satis_Gecmisi sg
+                      INNER JOIN Menu m ON sg.urun_id = m.urun_id
+                      GROUP BY sg.urun_id, m.urun_adi
+                      ORDER BY toplam_adet DESC", conn))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var urunAdi = reader["urun_adi"];
+                            var toplamAdet = reader["toplam_adet"];
+
+                            if (urunAdi != DBNull.Value && toplamAdet != DBNull.Value)
+                            {
+                                rapor.Add((
+                                    urunAdi.ToString() ?? "Bilinmiyor",
+                                    Convert.ToInt32(toplamAdet)
+                                ));
+                            }
+                        }
+                    }
+                }
+                conn.Close();
+            }
+            return rapor;
+        }
+
+        public static List<Models.OdemeKaydi> GetOdemeler()
+        {
+            var odemeler = new List<Models.OdemeKaydi>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand(
+                    @"SELECT masa_adi, odeme_tarihi, toplam_tutar, odenen_tutar, odeme_sekli
+                      FROM Odemeler
+                      ORDER BY odeme_tarihi DESC", conn))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var masaAdi = reader["masa_adi"];
+                            var odemetarihi = reader["odeme_tarihi"];
+                            var toplamTutar = reader["toplam_tutar"];
+                            var odenenTutar = reader["odenen_tutar"];
+                            var odemeShekli = reader["odeme_sekli"];
+
+                            if (masaAdi != DBNull.Value && odemetarihi != DBNull.Value)
+                            {
+                                var tarihDt = Convert.ToDateTime(odemetarihi);
+
+                                odemeler.Add(new Models.OdemeKaydi
+                                {
+                                    MasaAdi = masaAdi.ToString() ?? "Bilinmiyor",
+                                    Tarih = tarihDt.ToString("dd.MM.yyyy"),
+                                    Saat = tarihDt.ToString("HH:mm:ss"),
+                                    ToplamTutar = toplamTutar != DBNull.Value ? Convert.ToDecimal(toplamTutar) : 0,
+                                    OdenenTutar = odenenTutar != DBNull.Value ? Convert.ToDecimal(odenenTutar) : 0,
+                                    OdemeShekli = odemeShekli?.ToString() ?? "Nakit"
+                                });
+                            }
+                        }
+                    }
+                }
+                conn.Close();
+            }
+            return odemeler;
+        }
+
+        public static void SifirlaIstatistikler()
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SQLiteCommand("DELETE FROM Satis_Gecmisi", conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                using (var cmd = new SQLiteCommand("DELETE FROM Odemeler", conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+                conn.Close();
+            }
+        }
+    }
+}

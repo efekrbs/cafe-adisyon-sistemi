@@ -7,24 +7,40 @@
       "RelativeMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|solutionrelative:views\\odemewindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|d:\\githubfiles\\daikinfiles\\cafe-adisyon-sistemi\\views\\adisyonwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|solutionrelative:views\\adisyonwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|d:\\githubfiles\\daikinfiles\\cafe-adisyon-sistemi\\viewmodels\\adisyonviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|solutionrelative:viewmodels\\adisyonviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|d:\\githubfiles\\daikinfiles\\cafe-adisyon-sistemi\\services\\databaseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|solutionrelative:services\\databaseservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|d:\\githubfiles\\daikinfiles\\cafe-adisyon-sistemi\\views\\ayarlarwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|solutionrelative:views\\ayarlarwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|d:\\githubfiles\\daikinfiles\\cafe-adisyon-sistemi\\models\\odemeitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|solutionrelative:models\\odemeitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|d:\\githubfiles\\daikinfiles\\cafe-adisyon-sistemi\\views\\odemewindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|solutionrelative:views\\odemewindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|d:\\githubfiles\\daikinfiles\\cafe-adisyon-sistemi\\views\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|solutionrelative:views\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|d:\\githubfiles\\daikinfiles\\cafe-adisyon-sistemi\\views\\ayarlarwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|solutionrelative:views\\ayarlarwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|d:\\githubfiles\\daikinfiles\\cafe-adisyon-sistemi\\models\\odemekaydi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|solutionrelative:models\\odemekaydi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|d:\\githubfiles\\daikinfiles\\cafe-adisyon-sistemi\\views\\ayarlarwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|solutionrelative:views\\ayarlarwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|d:\\githubfiles\\daikinfiles\\cafe-adisyon-sistemi\\views\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|solutionrelative:views\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|d:\\githubfiles\\daikinfiles\\cafe-adisyon-sistemi\\models\\odemekaydi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|solutionrelative:models\\odemekaydi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{799B53C3-C1B7-9DDD-FCD0-20579B092B8E}|CafeAdisyon.csproj|d:\\githubfiles\\daikinfiles\\cafe-adisyon-sistemi\\views\\adisyonwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
@@ -38,24 +54,76 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 8,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "AdisyonWindow.xaml.cs",
+              "DocumentMoniker": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\Views\\AdisyonWindow.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\AdisyonWindow.xaml.cs",
+              "ToolTip": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\Views\\AdisyonWindow.xaml.cs",
+              "RelativeToolTip": "Views\\AdisyonWindow.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T13:08:13.576Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "AdisyonViewModel.cs",
+              "DocumentMoniker": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\ViewModels\\AdisyonViewModel.cs",
+              "RelativeDocumentMoniker": "ViewModels\\AdisyonViewModel.cs",
+              "ToolTip": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\ViewModels\\AdisyonViewModel.cs",
+              "RelativeToolTip": "ViewModels\\AdisyonViewModel.cs",
+              "ViewState": "AgIAAHsAAAAAAAAAAAASwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T13:08:13.5Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "OdemeItem.cs",
+              "DocumentMoniker": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\Models\\OdemeItem.cs",
+              "RelativeDocumentMoniker": "Models\\OdemeItem.cs",
+              "ToolTip": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\Models\\OdemeItem.cs",
+              "RelativeToolTip": "Models\\OdemeItem.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T13:06:33.028Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "OdemeWindow.xaml.cs",
+              "DocumentMoniker": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\Views\\OdemeWindow.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\OdemeWindow.xaml.cs",
+              "ToolTip": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\Views\\OdemeWindow.xaml.cs",
+              "RelativeToolTip": "Views\\OdemeWindow.xaml.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAArwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-05-26T13:03:07.88Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "DatabaseService.cs",
               "DocumentMoniker": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\Services\\DatabaseService.cs",
               "RelativeDocumentMoniker": "Services\\DatabaseService.cs",
               "ToolTip": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\Services\\DatabaseService.cs",
               "RelativeToolTip": "Services\\DatabaseService.cs",
-              "ViewState": "AgIAAN8BAAAAAAAAAIAwwAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAADMBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-05-26T12:44:38.762Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 9,
               "Title": "OdemeKaydi.cs",
               "DocumentMoniker": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\Models\\OdemeKaydi.cs",
               "RelativeDocumentMoniker": "Models\\OdemeKaydi.cs",
@@ -63,12 +131,11 @@
               "RelativeToolTip": "Models\\OdemeKaydi.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T12:44:27.371Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-26T12:44:27.371Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 8,
               "Title": "AyarlarWindow.xaml.cs",
               "DocumentMoniker": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\Views\\AyarlarWindow.xaml.cs",
               "RelativeDocumentMoniker": "Views\\AyarlarWindow.xaml.cs",
@@ -76,12 +143,11 @@
               "RelativeToolTip": "Views\\AyarlarWindow.xaml.cs",
               "ViewState": "AgIAAJYAAAAAAAAAAAApwCAAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-05-26T00:16:38.885Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-05-26T00:16:38.885Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 10,
               "Title": "AdisyonWindow.xaml",
               "DocumentMoniker": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\Views\\AdisyonWindow.xaml",
               "RelativeDocumentMoniker": "Views\\AdisyonWindow.xaml",
@@ -104,7 +170,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "MainWindow.xaml",
               "DocumentMoniker": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\Views\\MainWindow.xaml",
               "RelativeDocumentMoniker": "Views\\MainWindow.xaml",
@@ -116,7 +182,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 7,
               "Title": "AyarlarWindow.xaml",
               "DocumentMoniker": "D:\\GithubFiles\\DaikinFiles\\cafe-adisyon-sistemi\\Views\\AyarlarWindow.xaml",
               "RelativeDocumentMoniker": "Views\\AyarlarWindow.xaml",

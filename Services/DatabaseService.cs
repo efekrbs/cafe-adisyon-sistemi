@@ -333,8 +333,8 @@ namespace CafeAdisyon
             }
         }
 
-        // ÖDEME (Parçalı Ödeme)
-        public static void PayAdisyonlar(int masaId, List<int> adisyonIds, string odemeShekli = "Nakit")
+        // ÖDEME (Parçalı Ödeme - adet bazlı)
+        public static void PayAdisyonlar(int masaId, Dictionary<int, int> adisyonAdetleri, string odemeShekli = "Nakit")
         {
             using (var conn = GetConnection())
             {
@@ -346,26 +346,38 @@ namespace CafeAdisyon
                         decimal toplamOdenecek = 0;
                         string masaAdi = "";
 
-                        // Masa adını al
                         using (var cmd = new SQLiteCommand("SELECT masa_adi FROM Masalar WHERE masa_id = @id", conn))
                         {
                             cmd.Parameters.AddWithValue("@id", masaId);
-                            var result = cmd.ExecuteScalar();
-                            masaAdi = result?.ToString() ?? "Bilinmiyor";
+                            masaAdi = cmd.ExecuteScalar()?.ToString() ?? "Bilinmiyor";
                         }
 
-                        foreach (int adisyonId in adisyonIds)
+                        foreach (var kvp in adisyonAdetleri)
                         {
-                            // Adisyon bilgilerini al
+                            int adisyonId = kvp.Key;
+                            int odenenAdet = kvp.Value;
+
                             var adisyon = GetAdisyonById(adisyonId, conn);
-                            if (adisyon != null)
+                            if (adisyon == null) continue;
+
+                            decimal tutar = adisyon.Fiyat * odenenAdet;
+                            toplamOdenecek += tutar;
+
+                            // Satış geçmişine ekle (seçilen adet kadar)
+                            var kısmiAdisyon = new Adisyon
                             {
-                                toplamOdenecek += adisyon.Toplam;
+                                AdisyonId = adisyon.AdisyonId,
+                                MasaId = adisyon.MasaId,
+                                UrunId = adisyon.UrunId,
+                                UrunAdi = adisyon.UrunAdi,
+                                Fiyat = adisyon.Fiyat,
+                                Adet = odenenAdet
+                            };
+                            InsertSatisGecmisi(kısmiAdisyon, conn);
 
-                                // Satış geçmişine ekle
-                                InsertSatisGecmisi(adisyon, conn);
-
-                                // Adisyonu ödenmiş olarak işaretle
+                            if (odenenAdet >= adisyon.Adet)
+                            {
+                                // Tamamı ödendi → ödenmiş işaretle
                                 using (var cmd = new SQLiteCommand(
                                     "UPDATE Adisyonlar SET odendi_mi = 1 WHERE adisyon_id = @id", conn))
                                 {
@@ -373,12 +385,21 @@ namespace CafeAdisyon
                                     cmd.ExecuteNonQuery();
                                 }
                             }
+                            else
+                            {
+                                // Kısmi ödeme → adeti düşür
+                                using (var cmd = new SQLiteCommand(
+                                    "UPDATE Adisyonlar SET adet = adet - @odenenAdet WHERE adisyon_id = @id", conn))
+                                {
+                                    cmd.Parameters.AddWithValue("@odenenAdet", odenenAdet);
+                                    cmd.Parameters.AddWithValue("@id", adisyonId);
+                                    cmd.ExecuteNonQuery();
+                                }
+                            }
                         }
 
-                        // Ödeme kaydını Odemeler tablosuna ekle
                         InsertOdemeKaydi(masaId, masaAdi, toplamOdenecek, toplamOdenecek, odemeShekli, conn);
 
-                        // Masa hala ödenmemiş item var mı kontrol et
                         int kalanItemler = 0;
                         using (var cmd = new SQLiteCommand(
                             "SELECT COUNT(*) FROM Adisyonlar WHERE masa_id = @masaId AND odendi_mi = 0", conn))
@@ -387,11 +408,8 @@ namespace CafeAdisyon
                             kalanItemler = Convert.ToInt32(cmd.ExecuteScalar());
                         }
 
-                        // Tüm itemler ödendiyse masayı boş yap
                         if (kalanItemler == 0)
-                        {
                             UpdateMasaDurum(masaId, "BOŞ", conn);
-                        }
 
                         trans.Commit();
                     }

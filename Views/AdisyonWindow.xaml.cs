@@ -40,10 +40,9 @@ namespace CafeAdisyon.Views
             var odemeWindow = new OdemeWindow(masa, _viewModel.MasaAdisyonlari.ToList(), adisyonIds);
             if (odemeWindow.ShowDialog() == true)
             {
-                // Sadece seçilen adisyonları öde
-                var secilenAdisyonlar = odemeWindow.SecidilenleriOdeAdisynIds;
+                var secilenAdisyonAdetleri = odemeWindow.SecilenAdisyonAdetleri;
                 var odemeShekli = odemeWindow.OdemeShekli;
-                _viewModel.OdemeyiTamamla(secilenAdisyonlar, odemeShekli);
+                _viewModel.OdemeyiTamamla(secilenAdisyonAdetleri, odemeShekli);
                 Close();
             }
         }

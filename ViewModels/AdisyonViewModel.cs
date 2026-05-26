@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -148,11 +149,11 @@ namespace CafeAdisyon.ViewModels
             ToplamTutar = yeniToplam;
         }
 
-        public void OdemeyiTamamla(List<int> secilenAdisyonIds, string odemeShekli = "Nakit")
+        public void OdemeyiTamamla(Dictionary<int, int> secilenAdisyonAdetleri, string odemeShekli = "Nakit")
         {
-            DatabaseService.PayAdisyonlar(_secilenMasa.MasaId, secilenAdisyonIds, odemeShekli);
+            DatabaseService.PayAdisyonlar(_secilenMasa.MasaId, secilenAdisyonAdetleri, odemeShekli);
             YukleMasaAdisyonlari();
-            OdemeYapildi?.Invoke(this, (_secilenMasa, secilenAdisyonIds));
+            OdemeYapildi?.Invoke(this, (_secilenMasa, secilenAdisyonAdetleri.Keys.ToList()));
         }
     }
 }

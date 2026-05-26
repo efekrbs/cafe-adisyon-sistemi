@@ -55,29 +55,38 @@
 
                             <!-- Ürün Bilgileri -->
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="15,0,15,0">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <TextBlock Grid.Column="0" Text="{Binding UrunAdi}"
-                                              FontSize="14"
-                                              FontWeight="Bold"
-                                              Foreground="{StaticResource TextBrush}"/>
-
-                                    <TextBlock Grid.Column="1" Text="{Binding Adet, StringFormat='Adet: {0}'}"
-                                              FontSize="11"
-                                              Foreground="#888888"
-                                              VerticalAlignment="Center"/>
-                                </Grid>
+                                <TextBlock Text="{Binding UrunAdi}"
+                                          FontSize="14" FontWeight="Bold"
+                                          Foreground="{StaticResource TextBrush}"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                    <TextBlock Text="Adet:" FontSize="11" Foreground="#888888" VerticalAlignment="Center"/>
+                                    <!-- Adet Seçici -->
+                                    <Button Name="AdetAzaltBtn" Content="−" Width="24" Height="24" FontSize="14"
+                                           Style="{StaticResource PrimaryButtonStyle}"
+                                           Background="{StaticResource SecondaryBrush}"
+                                           Foreground="{StaticResource TextBrush}"
+                                           Margin="6,0,0,0" Padding="0"
+                                           Click="AdetAzalt_Click" Tag="{Binding}"/>
+                                    <TextBlock Text="{Binding SecilenAdet}" FontSize="13" FontWeight="Bold"
+                                              Foreground="{StaticResource TextBrush}"
+                                              VerticalAlignment="Center" Margin="8,0" MinWidth="20"
+                                              TextAlignment="Center"/>
+                                    <Button Name="AdetArtirBtn" Content="+" Width="24" Height="24" FontSize="14"
+                                           Style="{StaticResource PrimaryButtonStyle}"
+                                           Background="{StaticResource SecondaryBrush}"
+                                           Foreground="{StaticResource TextBrush}"
+                                           Padding="0"
+                                           Click="AdetArtir_Click" Tag="{Binding}"/>
+                                    <TextBlock Text="{Binding MaxAdet, StringFormat='/ {0}'}"
+                                              FontSize="11" Foreground="#888888"
+                                              VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                </StackPanel>
                             </StackPanel>
 
-                            <!-- Toplam Tutar -->
+                            <!-- Seçilen Toplam Tutar -->
                             <TextBlock Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right"
-                                      Text="{Binding Toplam, StringFormat='₺{0:F2}'}"
-                                      FontSize="16"
-                                      FontWeight="Bold"
+                                      Text="{Binding SecilenToplam, StringFormat='₺{0:F2}'}"
+                                      FontSize="16" FontWeight="Bold"
                                       Foreground="{StaticResource AccentBrush}"
                                       TextAlignment="Right" Margin="0,0,10,0"/>
                         </Grid>
@@ -94,35 +103,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Ödeme Şekli Seçimi -->
             <Border Grid.Row="0" Background="{StaticResource SecondaryBrush}"
-                   BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0"
-                   Padding="20,15">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <TextBlock Grid.Column="0"
-                              Text="ÖDEME ŞEKLİ:"
-                              FontSize="12"
-                              FontWeight="Bold"
-                              Foreground="{StaticResource TextBrush}"
-                              VerticalAlignment="Center"
-                              Margin="0,0,15,0"/>
-
-                    <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <RadioButton Name="NakitRadio" Content="Nakit" IsChecked="True"
-                                    Margin="0,0,20,0" VerticalAlignment="Center"
-                                    Foreground="{StaticResource TextBrush}" FontSize="12"/>
-                        <RadioButton Name="KartRadio" Content="Kart" VerticalAlignment="Center"
-                                    Foreground="{StaticResource TextBrush}" FontSize="12"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-
-            <Border Grid.Row="1" Background="{StaticResource SecondaryBrush}"
                    BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0"
                    Padding="20,15">
                 <Grid>
@@ -150,19 +131,29 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <Button Grid.Column="0"
-                       Content="ÖDEMEYI TAMAMLA"
+                       Content="💵 NAKİT"
                        Style="{StaticResource PrimaryButtonStyle}"
-                       Margin="0,0,10,0"
-                       Click="OdemeYap_Click"
+                       Margin="0,0,8,0"
+                       Background="#4CAF50"
+                       Click="NakitOde_Click"
                        FontSize="13"/>
 
                 <Button Grid.Column="1"
+                       Content="💳 KART"
+                       Style="{StaticResource PrimaryButtonStyle}"
+                       Margin="8,0"
+                       Background="#2196F3"
+                       Click="KartOde_Click"
+                       FontSize="13"/>
+
+                <Button Grid.Column="2"
                        Content="İPTAL"
                        Style="{StaticResource PrimaryButtonStyle}"
-                       Margin="10,0,0,0"
+                       Margin="8,0,0,0"
                        Background="#999999"
                        Click="Iptal_Click"
                        FontSize="13"/>

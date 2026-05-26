@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,39 +11,42 @@ namespace CafeAdisyon.Views
     public partial class OdemeWindow : Window
     {
         private Dictionary<int, CheckBox> _checkBoxMap = new Dictionary<int, CheckBox>();
-        public List<int> SecidilenleriOdeAdisynIds { get; private set; } = new List<int>();
+        private ObservableCollection<OdemeItem> _odemeItemleri;
+
+        public Dictionary<int, int> SecilenAdisyonAdetleri { get; private set; } = new Dictionary<int, int>();
         public string OdemeShekli { get; private set; } = "Nakit";
 
         public OdemeWindow(Masa masa, List<Adisyon> adisyonlar, List<int> adisyonIds)
         {
             InitializeComponent();
-            Title = $"Ödeme Ekranı - {masa.MasaAdi}";
-            OdemeListesi.ItemsSource = adisyonlar;
+            Title = $"�deme Ekran� - {masa.MasaAdi}";
+
+            _odemeItemleri = new ObservableCollection<OdemeItem>(
+                adisyonlar.Select(a => new OdemeItem(a)));
+
+            foreach (var item in _odemeItemleri)
+                item.PropertyChanged += (s, e) => HesaplaToplamTutar();
+
+            OdemeListesi.ItemsSource = _odemeItemleri;
         }
 
-        private void OdemeYap_Click(object sender, RoutedEventArgs e)
+        private void OdemeYap(string odemeShekli)
         {
-            var secilenAdisyonlar = new List<int>();
-
-            foreach (var kvp in _checkBoxMap)
+            var secilen = _odemeItemleri.Where(i => i.Secili).ToList();
+            if (secilen.Count == 0)
             {
-                if (kvp.Value.IsChecked == true)
-                {
-                    secilenAdisyonlar.Add(kvp.Key);
-                }
-            }
-
-            if (secilenAdisyonlar.Count == 0)
-            {
-                MessageBox.Show("Lütfen en az bir ürün seçiniz!", "Uyarı", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("L�tfen en az bir �r�n se�iniz!", "Uyar�", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            OdemeShekli = KartRadio.IsChecked == true ? "Kart" : "Nakit";
-            SecidilenleriOdeAdisynIds = secilenAdisyonlar;
+            OdemeShekli = odemeShekli;
+            SecilenAdisyonAdetleri = secilen.ToDictionary(i => i.Adisyon.AdisyonId, i => i.SecilenAdet);
             DialogResult = true;
             Close();
         }
+
+        private void NakitOde_Click(object sender, RoutedEventArgs e) => OdemeYap("Nakit");
+        private void KartOde_Click(object sender, RoutedEventArgs e) => OdemeYap("Kart");
 
         private void Iptal_Click(object sender, RoutedEventArgs e)
         {
@@ -50,167 +54,120 @@ namespace CafeAdisyon.Views
             Close();
         }
 
+        private void AdetAzalt_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is OdemeItem item)
+                item.SecilenAdet--;
+        }
+
+        private void AdetArtir_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn && btn.Tag is OdemeItem item)
+                item.SecilenAdet++;
+        }
+
         private void HesaplaToplamTutar()
         {
-            decimal toplam = 0;
-
-            var adisyonlar = OdemeListesi.ItemsSource as List<Adisyon>;
-            if (adisyonlar != null)
-            {
-                foreach (var adisyon in adisyonlar)
-                {
-                    if (_checkBoxMap.ContainsKey(adisyon.AdisyonId))
-                    {
-                        var checkBox = _checkBoxMap[adisyon.AdisyonId];
-                        if (checkBox.IsChecked == true)
-                        {
-                            toplam += adisyon.Toplam;
-                        }
-                    }
-                }
-            }
-
-            ToplamOdemeTutar.Text = $"₺{toplam:F2}";
+            decimal toplam = _odemeItemleri.Where(i => i.Secili).Sum(i => i.SecilenToplam);
+            ToplamOdemeTutar.Text = $"\u20ba{toplam:F2}";
         }
 
         protected override void OnContentRendered(EventArgs e)
         {
             base.OnContentRendered(e);
-
-            // Virtualization'ı disable et - Tüm item'ların generate edilmesi için
             System.Windows.Controls.VirtualizingStackPanel.SetIsVirtualizing(OdemeListesi, false);
 
             Dispatcher.InvokeAsync(() =>
             {
-                // CheckBox'ları map'e ekle ve event'ler bind et
-                var adisyonlar = OdemeListesi.ItemsSource as List<Adisyon>;
-                if (adisyonlar != null)
+                foreach (var item in _odemeItemleri)
                 {
-                    foreach (var adisyon in adisyonlar)
+                    var container = OdemeListesi.ItemContainerGenerator.ContainerFromItem(item) as FrameworkElement;
+                    if (container != null)
                     {
-                        var container = OdemeListesi.ItemContainerGenerator.ContainerFromItem(adisyon) as FrameworkElement;
-                        if (container != null)
+                        var checkBox = FindVisualChild<CheckBox>(container, "OdemeCheckBox");
+                        var border = FindVisualChild<Border>(container, "OdemeItemBorder");
+
+                        if (checkBox != null)
                         {
-                            var checkBox = FindVisualChild<CheckBox>(container, "OdemeCheckBox");
-                            var border = FindVisualChild<Border>(container, "OdemeItemBorder");
+                            _checkBoxMap[item.Adisyon.AdisyonId] = checkBox;
+                            checkBox.Checked += (s, args) => { item.Secili = true; GuncelleItemGorsel(item); };
+                            checkBox.Unchecked += (s, args) => { item.Secili = false; GuncelleItemGorsel(item); };
+                            checkBox.IsChecked = true;
 
-                            if (checkBox != null)
+                            if (border != null)
                             {
-                                _checkBoxMap[adisyon.AdisyonId] = checkBox;
-                                checkBox.Checked += (s, args) => {
-                                    HesaplaToplamTutar();
-                                    GuncelleItemGorsel(adisyon.AdisyonId);
-                                };
-                                checkBox.Unchecked += (s, args) => {
-                                    HesaplaToplamTutar();
-                                    GuncelleItemGorsel(adisyon.AdisyonId);
-                                };
-                                checkBox.IsChecked = true; // Default tüm itemleri seç
-
-                                // Border referansını tut
-                                if (border != null)
-                                {
-                                    border.Tag = adisyon.AdisyonId;
-                                    GuncelleItemGorsel(adisyon.AdisyonId);
-                                }
+                                border.Tag = item.Adisyon.AdisyonId;
+                                GuncelleItemGorsel(item);
                             }
                         }
                     }
-
-                    HesaplaToplamTutar();
                 }
+                HesaplaToplamTutar();
             }, System.Windows.Threading.DispatcherPriority.Loaded);
         }
 
         private void Border_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            if (e.OriginalSource is Button) return;
+
             var border = sender as Border;
-            if (border?.Tag is int adisyonId && _checkBoxMap.ContainsKey(adisyonId))
+            if (border?.Tag is int adisyonId)
             {
-                var checkBox = _checkBoxMap[adisyonId];
-                checkBox.IsChecked = !checkBox.IsChecked;
+                var item = _odemeItemleri.FirstOrDefault(i => i.Adisyon.AdisyonId == adisyonId);
+                if (item != null && _checkBoxMap.ContainsKey(adisyonId))
+                    _checkBoxMap[adisyonId].IsChecked = !_checkBoxMap[adisyonId].IsChecked;
             }
         }
 
-        private void GuncelleItemGorsel(int adisyonId)
+        private void GuncelleItemGorsel(OdemeItem item)
         {
-            var adisyonlar = OdemeListesi.ItemsSource as List<Adisyon>;
-            if (adisyonlar != null)
+            var container = OdemeListesi.ItemContainerGenerator.ContainerFromItem(item) as FrameworkElement;
+            if (container == null) return;
+
+            var border = FindVisualChild<Border>(container, "OdemeItemBorder");
+            var checkBox = FindVisualChild<CheckBox>(container, "OdemeCheckBox");
+            var checkIcon = FindVisualChild<System.Windows.Controls.TextBlock>(container, "CheckIcon");
+
+            if (border == null || checkBox == null) return;
+
+            if (checkBox.IsChecked == true)
             {
-                var adisyon = adisyonlar.FirstOrDefault(a => a.AdisyonId == adisyonId);
-                if (adisyon != null)
+                border.BorderBrush = new System.Windows.Media.SolidColorBrush(
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4CAF50"));
+                border.Background = new System.Windows.Media.SolidColorBrush(
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#E8F5E9"));
+                checkBox.Opacity = 0;
+                if (checkIcon != null)
                 {
-                    var container = OdemeListesi.ItemContainerGenerator.ContainerFromItem(adisyon) as FrameworkElement;
-                    if (container != null)
-                    {
-                        var border = FindVisualChild<Border>(container, "OdemeItemBorder");
-                        var checkBox = FindVisualChild<CheckBox>(container, "OdemeCheckBox");
-                        var checkIcon = FindVisualChild<System.Windows.Controls.TextBlock>(container, "CheckIcon");
-
-                        if (border != null && checkBox != null)
-                        {
-                            if (checkBox.IsChecked == true)
-                            {
-                                // Seçili: Yeşil border, açık yeşil arka plan
-                                border.BorderBrush = new System.Windows.Media.SolidColorBrush(
-                                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4CAF50"));
-                                border.Background = new System.Windows.Media.SolidColorBrush(
-                                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#E8F5E9"));
-
-                                // CheckBox gizle, Check icon göster
-                                if (checkBox != null) checkBox.Opacity = 0;
-                                if (checkIcon != null)
-                                {
-                                    checkIcon.Opacity = 1;
-                                    checkIcon.Foreground = new System.Windows.Media.SolidColorBrush(
-                                        (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4CAF50"));
-                                }
-                            }
-                            else
-                            {
-                                // Seçili olmayan: Gri border, beyaz arka plan
-                                border.BorderBrush = new System.Windows.Media.SolidColorBrush(
-                                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#DDDDDD"));
-                                border.Background = new System.Windows.Media.SolidColorBrush(
-                                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFFFFF"));
-
-                                // CheckBox göster, Check icon gizle
-                                if (checkBox != null) checkBox.Opacity = 1;
-                                if (checkIcon != null) checkIcon.Opacity = 0;
-                            }
-                        }
-                    }
+                    checkIcon.Opacity = 1;
+                    checkIcon.Foreground = new System.Windows.Media.SolidColorBrush(
+                        (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4CAF50"));
                 }
+            }
+            else
+            {
+                border.BorderBrush = new System.Windows.Media.SolidColorBrush(
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#DDDDDD"));
+                border.Background = new System.Windows.Media.SolidColorBrush(
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFFFFF"));
+                checkBox.Opacity = 1;
+                if (checkIcon != null) checkIcon.Opacity = 0;
             }
         }
 
         private T FindVisualChild<T>(DependencyObject parent, string childName) where T : DependencyObject
         {
             if (parent == null) return null;
-
-            T foundChild = null;
-
             int childrenCount = System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent);
             for (int i = 0; i < childrenCount; i++)
             {
                 DependencyObject child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
-
-                T typedChild = child as T;
-                if (typedChild != null)
-                {
-                    if (childName == "" || (child is FrameworkElement fe && fe.Name == childName))
-                    {
-                        foundChild = typedChild;
-                        break;
-                    }
-                }
-
-                foundChild = FindVisualChild<T>(child, childName);
-                if (foundChild != null)
-                    break;
+                if (child is T typedChild && (childName == "" || (child is FrameworkElement fe && fe.Name == childName)))
+                    return typedChild;
+                var result = FindVisualChild<T>(child, childName);
+                if (result != null) return result;
             }
-
-            return foundChild;
+            return null;
         }
     }
 }
